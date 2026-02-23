@@ -25,146 +25,6 @@
         },
         {
             "parameters": {
-                "operation": "append",
-                "documentId": {
-                    "__rl": true,
-                    "value": "https://docs.google.com/spreadsheets/d/1_srJdmwO8PZtXgbUeZpUWB1T79ubXhXWRZyp2LzvZmo/edit?gid=1708738764#gid=1708738764",
-                    "mode": "url"
-                },
-                "sheetName": {
-                    "__rl": true,
-                    "value": "={{ $now.format('yyyy/MM') }}",
-                    "mode": "name"
-                },
-                "columns": {
-                    "mappingMode": "defineBelow",
-                    "value": {
-                        "日期": "={{ $json.date }}",
-                        "品牌": "={{ $json.brand }}",
-                        "文章": "={{ $json.title }}",
-                        "臉書": "={{ false}}",
-                        "官網連結": "={{ $json.full_link }}",
-                        "媒體": "={{ false}}",
-                        "首頁": "={{ true}}",
-                        "電子報": "={{ false}}",
-                        "官網": "={{ true}}",
-                        "雲端連結": "={{ $json.files[0].webViewLink }}"
-                    },
-                    "matchingColumns": [],
-                    "schema": [
-                        {
-                            "id": "日期",
-                            "displayName": "日期",
-                            "required": false,
-                            "defaultMatch": false,
-                            "display": true,
-                            "type": "string",
-                            "canBeUsedToMatch": true
-                        },
-                        {
-                            "id": "品牌",
-                            "displayName": "品牌",
-                            "required": false,
-                            "defaultMatch": false,
-                            "display": true,
-                            "type": "string",
-                            "canBeUsedToMatch": true
-                        },
-                        {
-                            "id": "文章",
-                            "displayName": "文章",
-                            "required": false,
-                            "defaultMatch": false,
-                            "display": true,
-                            "type": "string",
-                            "canBeUsedToMatch": true
-                        },
-                        {
-                            "id": "官網",
-                            "displayName": "官網",
-                            "required": false,
-                            "defaultMatch": false,
-                            "display": true,
-                            "type": "string",
-                            "canBeUsedToMatch": true
-                        },
-                        {
-                            "id": "電子報",
-                            "displayName": "電子報",
-                            "required": false,
-                            "defaultMatch": false,
-                            "display": true,
-                            "type": "string",
-                            "canBeUsedToMatch": true
-                        },
-                        {
-                            "id": "首頁",
-                            "displayName": "首頁",
-                            "required": false,
-                            "defaultMatch": false,
-                            "display": true,
-                            "type": "string",
-                            "canBeUsedToMatch": true
-                        },
-                        {
-                            "id": "媒體",
-                            "displayName": "媒體",
-                            "required": false,
-                            "defaultMatch": false,
-                            "display": true,
-                            "type": "string",
-                            "canBeUsedToMatch": true
-                        },
-                        {
-                            "id": "臉書",
-                            "displayName": "臉書",
-                            "required": false,
-                            "defaultMatch": false,
-                            "display": true,
-                            "type": "string",
-                            "canBeUsedToMatch": true
-                        },
-                        {
-                            "id": "雲端連結",
-                            "displayName": "雲端連結",
-                            "required": false,
-                            "defaultMatch": false,
-                            "display": true,
-                            "type": "string",
-                            "canBeUsedToMatch": true
-                        },
-                        {
-                            "id": "官網連結",
-                            "displayName": "官網連結",
-                            "required": false,
-                            "defaultMatch": false,
-                            "display": true,
-                            "type": "string",
-                            "canBeUsedToMatch": true
-                        }
-                    ],
-                    "attemptToConvertTypes": false,
-                    "convertFieldsToString": false
-                },
-                "options": {}
-            },
-            "name": "寫入當月分頁",
-            "type": "n8n-nodes-base.googleSheets",
-            "typeVersion": 4.5,
-            "position": [
-                1380,
-                192
-            ],
-            "id": "fc288244-f005-4d6c-8894-4cffd6f49ae7",
-            "credentials": {
-                "googleSheetsOAuth2Api": {
-                    "id": "QDgBdmnsKlu9ijRH",
-                    "name": "Google Sheets account"
-                }
-            }
-        },
-        {
-            "parameters": {
                 "url": "https://www.i-buzz.com.tw/article/viewpoints/",
                 "options": {}
             },
@@ -179,118 +39,6 @@
         },
         {
             "parameters": {
-                "rule": {
-                    "interval": [
-                        {
-                            "field": "months"
-                        }
-                    ]
-                }
-            },
-            "name": "每月1號觸發",
-            "type": "n8n-nodes-base.scheduleTrigger",
-            "typeVersion": 1.2,
-            "position": [
-                -208,
-                -160
-            ],
-            "id": "a011dcfd-8cf8-481f-a6c2-4bb913134f15"
-        },
-        {
-            "parameters": {
-                "assignments": {
-                    "assignments": [
-                        {
-                            "id": "1cb7389d-6458-465a-8201-382d4715c318",
-                            "name": "spreadsheet_id",
-                            "value": "1_srJdmwO8PZtXgbUeZpUWB1T79ubXhXWRZyp2LzvZmo",
-                            "type": "string"
-                        },
-                        {
-                            "id": "77b88da6-45b4-49b6-93ab-3b35912e481e",
-                            "name": "template_sheet_id",
-                            "value": "1391772714",
-                            "type": "string"
-                        },
-                        {
-                            "id": "4838f49c-6283-447d-a406-a358faef2e93",
-                            "name": "new_sheet_name",
-                            "value": "={{ $now.format('yyyy/MM') }}",
-                            "type": "string"
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "name": "設定參數",
-            "type": "n8n-nodes-base.set",
-            "typeVersion": 3.4,
-            "position": [
-                32,
-                -160
-            ],
-            "id": "48b40233-a33e-4e13-9ab6-dbc8ec159dc1"
-        },
-        {
-            "parameters": {
-                "method": "POST",
-                "url": "=https://sheets.googleapis.com/v4/spreadsheets/{{ $json.spreadsheet_id }}/sheets/{{ $json.template_sheet_id }}:copyTo",
-                "authentication": "predefinedCredentialType",
-                "nodeCredentialType": "googleSheetsOAuth2Api",
-                "sendBody": true,
-                "bodyParameters": {
-                    "parameters": [
-                        {
-                            "name": "destinationSpreadsheetId",
-                            "value": "={{ $json.spreadsheet_id }}"
-                        }
-                    ]
-                },
-                "options": {}
-            },
-            "name": "複製 Template",
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.1,
-            "position": [
-                256,
-                -160
-            ],
-            "id": "0cba135b-01a3-44cc-be5e-b10fe42cb96a",
-            "credentials": {
-                "googleSheetsOAuth2Api": {
-                    "id": "QDgBdmnsKlu9ijRH",
-                    "name": "Google Sheets account"
-                }
-            }
-        },
-        {
-            "parameters": {
-                "method": "POST",
-                "url": "=https://sheets.googleapis.com/v4/spreadsheets/{{ $node.設定參數.json.spreadsheet_id }}:batchUpdate",
-                "authentication": "predefinedCredentialType",
-                "nodeCredentialType": "googleSheetsOAuth2Api",
-                "sendBody": true,
-                "specifyBody": "json",
-                "jsonBody": "={\n  \"requests\": [\n    {\n      \"updateSheetProperties\": {\n        \"properties\": {\n          \"sheetId\": {{ $json.sheetId }},\n          \"title\": \"{{ $node.設定參數.json.new_sheet_name }}\",\n          \"index\": 3,\n          \"hidden\": false\n        },\n        \"fields\": \"title,index,hidden\"\n      }\n    }\n  ]\n}",
-                "options": {}
-            },
-            "name": "新增tab",
-            "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.1,
-            "position": [
-                480,
-                -160
-            ],
-            "id": "d5bb4112-f953-4ecd-8715-4020be878dcb",
-            "credentials": {
-                "googleSheetsOAuth2Api": {
-                    "id": "QDgBdmnsKlu9ijRH",
-                    "name": "Google Sheets account"
-                }
-            }
-        },
-        {
-            "parameters": {
                 "jsCode": "const items = $input.all();\nif (items.length === 0 || !items[0].json.data) {\n  return [];\n}\nconst html = items[0].json.data;\nconst now = new Date();\nconst currentDay = now.getDay();\nconst diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;\nconst mondayDate = new Date(now);\nmondayDate.setDate(now.getDate() + diffToMonday);\nmondayDate.setHours(0, 0, 0, 0);\nconst nextMondayDate = new Date(mondayDate);\nnextMondayDate.setDate(mondayDate.getDate() + 7);\nconst articles = [];\nconst rawItems = html.split('<div class=\"result_item\">');\nconst titleRegex = /<h2>(.*?)<\\/h2>/;\nconst linkTagRegex = /<a[^>]+class=\"item_cover\"[^>]*>/; \nconst hrefRefex = /href=\"([^\\\"\\\\\"]+)\"/;\nconst dateRegex = /class=\"item_date\">(.*?)<\\/div>/;\nconst categoryRegex = /class=\"item_type\"[^>]*>(.*?)<\\/a>/;\nfor (let i = 1; i < rawItems.length; i++) {\n  const itemHtml = rawItems[i];\n  const titleMatch = itemHtml.match(titleRegex);\n  const dateMatch = itemHtml.match(dateRegex);\n  const categoryMatch = itemHtml.match(categoryRegex);\n  let link = null;\n  const linkTagMatch = itemHtml.match(linkTagRegex);\n  if (linkTagMatch) {\n     const hrefMatch = linkTagMatch[0].match(hrefRefex);\n     if (hrefMatch) link = hrefMatch[1];\n  }\n  if (titleMatch && link && dateMatch && categoryMatch) {\n    const title = titleMatch[1].trim();\n    const dateStr = dateMatch[1].trim();\n    const category = categoryMatch[1].trim();\n    const parts = dateStr.split('-');\n    if (parts.length === 3) {\n        const articleDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));\n        if (articleDate >= mondayDate && articleDate < nextMondayDate) {\n            let brand = '其他';\n            if (category === '消費者洞察') brand = 'iBuzz(消費者洞察)';\n            else if (category === '網紅行銷策略') brand = 'Asia KOL';\n            else if (category === '數據分析解方') brand = '業務提供';\n            else if (category === '社群粉絲團健檢') brand = 'Fans Feed';\n            const full_link = link.startsWith('http') ? link : 'https://www.i-buzz.com.tw' + link;\n            articles.push({ json: { title: title, date: dateStr, brand: brand, full_link: full_link } });\n        }\n    }\n  }\n}\nreturn articles;"
             },
             "name": "拆出當周新文章",
@@ -301,21 +49,6 @@
                 176
             ],
             "id": "8e365691-3811-4648-9694-874e0c38421b"
-        },
-        {
-            "parameters": {
-                "mode": "combine",
-                "combineBy": "combineByPosition",
-                "options": {}
-            },
-            "name": "Merge",
-            "type": "n8n-nodes-base.merge",
-            "typeVersion": 3.2,
-            "position": [
-                1180,
-                192
-            ],
-            "id": "6457bdfc-7c94-4cb6-ada9-7db58581649b"
         },
         {
             "parameters": {
@@ -347,7 +80,7 @@
             },
             "name": "抓新文章雲端_v2",
             "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.4,
+            "typeVersion": 4.1,
             "position": [
                 480,
                 416
@@ -390,7 +123,7 @@
             },
             "name": "尋找已上稿資料夾",
             "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.4,
+            "typeVersion": 4.1,
             "position": [
                 700,
                 416
@@ -406,7 +139,7 @@
         {
             "parameters": {
                 "method": "PATCH",
-                "url": "=https://www.googleapis.com/drive/v3/files/{{ $node.抓新文章雲端_v2.json.files[0].id }}",
+                "url": "=https://www.googleapis.com/drive/v3/files/{{ $node[\"抓新文章雲端_v2\"].json.files[0].id }}",
                 "authentication": "predefinedCredentialType",
                 "nodeCredentialType": "googleDriveOAuth2Api",
                 "sendQuery": true,
@@ -430,9 +163,9 @@
             },
             "name": "搬移至已上稿",
             "type": "n8n-nodes-base.httpRequest",
-            "typeVersion": 4.4,
+            "typeVersion": 4.1,
             "position": [
-                920,
+                950,
                 416
             ],
             "id": "m516842e-1234-5678-9abc-def012345678",
@@ -467,60 +200,11 @@
                 ]
             ]
         },
-        "每月1號觸發": {
-            "main": [
-                [
-                    {
-                        "node": "設定參數",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "設定參數": {
-            "main": [
-                [
-                    {
-                        "node": "複製 Template",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "複製 Template": {
-            "main": [
-                [
-                    {
-                        "node": "新增tab",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
         "拆出當周新文章": {
             "main": [
                 [
                     {
-                        "node": "Merge",
-                        "type": "main",
-                        "index": 0
-                    },
-                    {
                         "node": "抓新文章雲端_v2",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
-        },
-        "Merge": {
-            "main": [
-                [
-                    {
-                        "node": "寫入當月分頁",
                         "type": "main",
                         "index": 0
                     }
@@ -545,17 +229,6 @@
                         "node": "搬移至已上稿",
                         "type": "main",
                         "index": 0
-                    }
-                ]
-            ]
-        },
-        "搬移至已上稿": {
-            "main": [
-                [
-                    {
-                        "node": "Merge",
-                        "type": "main",
-                        "index": 1
                     }
                 ]
             ]
