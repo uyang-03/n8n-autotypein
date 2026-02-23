@@ -26,7 +26,7 @@ graph TD
         B[抓取 i-Buzz 官網 HTML]
         C[Code Node：解析並過濾本週文章]
         D[Google Drive API：搜尋當日文章資料夾]
-        D2[Google Drive API：搜尋「已上傳」資料夾]
+        D2[Google Drive API：搜尋「已上稿」資料夾]
         D3[Google Drive API：搬移資料夾至目標路徑]
         E[Merge Node：合併文章 + 雲端連結]
         F[寫入 Google Sheets]
@@ -71,7 +71,7 @@ sequenceDiagram
     par 平行執行
         解析->>Sheets: 傳送文章資料
     and
-        解析->>Drive: 1. 查詢當日對應雲端資料夾\n2. 查詢「已上傳」子資料夾\n3. 執行 PATCH 搬移
+        解析->>Drive: 1. 查詢當日對應雲端資料夾\n2. 查詢「已上稿」子資料夾\n3. 執行 PATCH 搬移
     end
     Drive-->>Sheets: 回傳 webViewLink (連結不變)
     Note over Sheets: Merge Node 合併兩路資料

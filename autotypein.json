@@ -362,7 +362,7 @@
                     "parameters": [
                         {
                             "name": "q",
-                            "value": "='{{ $json.files[0].parents[0] }}' in parents and name = '已上傳' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
+                            "value": "='{{ ($node[\"拆出當周新文章\"].json.brand || \"\").includes(\"Asia KOL\") ? \"1CzGWmLOqeCkkjKnuxqVbDJup-PVFfU7H\" : ($node[\"拆出當周新文章\"].json.brand || \"\").includes(\"Fans Feed\") ? \"1czmLljMgsk1d33fQ_GTzpMl8GBuVsT14\" : \"1tWsHVkYwLBaBAFhAj68K9OntLCCoQAt3\" }}' in parents and name = '已上稿' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
                         },
                         {
                             "name": "fields",
@@ -372,7 +372,7 @@
                 },
                 "options": {}
             },
-            "name": "尋找已上傳資料夾",
+            "name": "尋找已上稿資料夾",
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.4,
             "position": [
@@ -402,13 +402,13 @@
                         },
                         {
                             "name": "removeParents",
-                            "value": "={{ $node.抓新文章雲端_v2.json.files[0].parents[0] }}"
+                            "value": "={{ ($node[\"拆出當周新文章\"].json.brand || \"\").includes(\"Asia KOL\") ? \"1CzGWmLOqeCkkjKnuxqVbDJup-PVFfU7H\" : ($node[\"拆出當周新文章\"].json.brand || \"\").includes(\"Fans Feed\") ? \"1czmLljMgsk1d33fQ_GTzpMl8GBuVsT14\" : \"1tWsHVkYwLBaBAFhAj68K9OntLCCoQAt3\" }}"
                         }
                     ]
                 },
                 "options": {}
             },
-            "name": "搬移至已上傳",
+            "name": "搬移至已上稿",
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.4,
             "position": [
@@ -511,25 +511,25 @@
             "main": [
                 [
                     {
-                        "node": "尋找已上傳資料夾",
+                        "node": "尋找已上稿資料夾",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "尋找已上傳資料夾": {
+        "尋找已上稿資料夾": {
             "main": [
                 [
                     {
-                        "node": "搬移至已上傳",
+                        "node": "搬移至已上稿",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "搬移至已上傳": {
+        "搬移至已上稿": {
             "main": [
                 [
                     {
