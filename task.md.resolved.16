@@ -1,4 +1,0 @@
-- [ ] Confirm Folder Structure (Static vs Monthly) <!-- id: 7 -->
-- [ ] Update Workflow: Add 'Google Drive' node (Search for File) <!-- id: 8 -->
-- [ ] Update Workflow: If Found -> Write Folder URL; Else -> Leave Empty <!-- id: 9 -->
-- [ ] Update Workflow: Update 'Google Sheets' node <!-- id: 10 -->

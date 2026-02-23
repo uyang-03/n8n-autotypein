@@ -1,5 +1,0 @@
-- [ ] Confirm User Requirements (File Type & Storage) <!-- id: 7 -->
-- [ ] Update Workflow: Add 'Split In Batches' loop <!-- id: 8 -->
-- [ ] Update Workflow: Add 'HTML to Binary' (PDF/Image generation) <!-- id: 9 -->
-- [ ] Update Workflow: Add 'Google Drive' node (Upload) <!-- id: 10 -->
-- [ ] Update Workflow: Map Drive Link to Google Sheets <!-- id: 11 -->
