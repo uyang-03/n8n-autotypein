@@ -25,7 +25,9 @@ graph TD
     subgraph n8n_流程
         B[抓取 i-Buzz 官網 HTML]
         C[Code Node：解析並過濾本週文章]
-        D[Google Drive API：搜尋對應資料夾]
+        D[Google Drive API：搜尋當日文章資料夾]
+        D2[Google Drive API：搜尋「已上傳」資料夾]
+        D3[Google Drive API：搬移資料夾至目標路徑]
         E[Merge Node：合併文章 + 雲端連結]
         F[寫入 Google Sheets]
         G[複製 Template Sheet]
@@ -38,9 +40,9 @@ graph TD
         K[A欄：增量日期合併]
     end
 
-    A1 --> B --> C --> D
+    A1 --> B --> C --> D --> D2 --> D3 --> E
     C --> E
-    D --> E --> F --> I --> J & K
+    E --> F --> I --> J & K
     A2 --> G --> H
 ```
 
@@ -69,9 +71,9 @@ sequenceDiagram
     par 平行執行
         解析->>Sheets: 傳送文章資料
     and
-        解析->>Drive: 查詢當日對應雲端資料夾
+        解析->>Drive: 1. 查詢當日對應雲端資料夾\n2. 查詢「已上傳」子資料夾\n3. 執行 PATCH 搬移
     end
-    Drive-->>Sheets: 回傳 webViewLink
+    Drive-->>Sheets: 回傳 webViewLink (連結不變)
     Note over Sheets: Merge Node 合併兩路資料
     Sheets->>Sheets: 寫入當月分頁 (yyyy/MM)
 ```
@@ -170,10 +172,10 @@ n8n Code Node（解析 + 過濾）
     ├─────────────────────────┐
     │                         │
     ▼                         ▼
-Google Drive API          文章資料
-（搜尋雲端資料夾）         (標題/日期/品牌/連結)
-    │                         │
-    └──────┬──────────────────┘
+Google Drive API         文章資料
+（搜尋、搬移資料夾）      (標題/日期/品牌/連結)
+    │                        │
+    └──────┬─────────────────┘
            │ Merge 合併
            ▼
     Google Sheets（寫入當月分頁）

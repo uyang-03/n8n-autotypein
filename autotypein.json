@@ -152,7 +152,7 @@
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.5,
             "position": [
-                880,
+                1380,
                 192
             ],
             "id": "fc288244-f005-4d6c-8894-4cffd6f49ae7",
@@ -161,8 +161,7 @@
                     "id": "QDgBdmnsKlu9ijRH",
                     "name": "Google Sheets account"
                 }
-            },
-            "notes": "寫入當月 Tab，格式：日期|品牌|文章|...|官網連結"
+            }
         },
         {
             "parameters": {
@@ -176,8 +175,7 @@
                 32,
                 176
             ],
-            "id": "76a49917-c1e0-49af-8df0-b8997066b9f5",
-            "notes": "目標網站：i-Buzz Viewpoints 頁面"
+            "id": "76a49917-c1e0-49af-8df0-b8997066b9f5"
         },
         {
             "parameters": {
@@ -194,7 +192,7 @@
             "typeVersion": 1.2,
             "position": [
                 -208,
-                -32
+                -160
             ],
             "id": "a011dcfd-8cf8-481f-a6c2-4bb913134f15"
         },
@@ -228,11 +226,10 @@
             "type": "n8n-nodes-base.set",
             "typeVersion": 3.4,
             "position": [
-                16,
-                -32
+                32,
+                -160
             ],
-            "id": "48b40233-a33e-4e13-9ab6-dbc8ec159dc1",
-            "notes": "設定試算表 ID 與模板 ID"
+            "id": "48b40233-a33e-4e13-9ab6-dbc8ec159dc1"
         },
         {
             "parameters": {
@@ -255,8 +252,8 @@
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.1,
             "position": [
-                224,
-                -32
+                256,
+                -160
             ],
             "id": "0cba135b-01a3-44cc-be5e-b10fe42cb96a",
             "credentials": {
@@ -264,8 +261,7 @@
                     "id": "QDgBdmnsKlu9ijRH",
                     "name": "Google Sheets account"
                 }
-            },
-            "notes": "執行 copyTo 指令"
+            }
         },
         {
             "parameters": {
@@ -283,7 +279,7 @@
             "typeVersion": 4.1,
             "position": [
                 480,
-                -32
+                -160
             ],
             "id": "d5bb4112-f953-4ecd-8715-4020be878dcb",
             "credentials": {
@@ -291,158 +287,258 @@
                     "id": "QDgBdmnsKlu9ijRH",
                     "name": "Google Sheets account"
                 }
-            },
-            "notes": "改名並移動到 Index 3 (第4順位)"
+            }
         },
         {
             "parameters": {
-                "jsCode": "/* \n * \u4fee\u6b63\u7248\u908f\u8輯\uff1a\n * \u539f\u672c\u53ea\u6293\u300c\u672c\u9031\u4e00\u300d\u7576\u5929\u7684\u6587\u7ae0\u3002\n * \u6539\u70ba\u6293\u53d6\u300c\u672c\u9031\u4e00 00:00\u300d\u5230\u300c\u4e0b\u9031\u4e00 00:00\u300d\u4e4b\u9593\u7684\u6240\u6709\u6587\u7ae0\u3002\n * \u4e5f\u5c31\u662f\u672c\u9031\u4e00\u5230\u9031\u65e5\u7684\u65b0\u6587\u7ae0\u90fd\u6703\u88ab\u4fdd\u7559\u3002\n */\n\nconst items = $input.all();\nif (items.length === 0 || !items[0].json.data) {\n  return [];\n}\nconst html = items[0].json.data;\n\n// 1. \u8a08\u7b97\u672c\u9031\u4e00\u8207\u4e0b\u9031\u4e00\u7684\u65e5\u671f\u754c\u7dda\nconst now = new Date();\nconst currentDay = now.getDay(); // 0(Sun) ~ 6(Sat)\n// \u8a08\u7b97\u56de\u5230\u672c\u9031\u4e00\u7684\u5dee\u8ddd\n// \u5982\u679c\u4eca\u5929\u662f\u9031\u65e5(0)\uff0c\u8981\u6e1b6\u5929\u56de\u5230\u9031\u4e00\uff1b\u5982\u679c\u4eca\u5929\u662f\u9031\u4e00(1)\uff0c\u6e1b0\u5929\uff1b\u5982\u679c\u4eca\u5929\u662f\u9031\u4e8c(2)\uff0c\u6e1b1\u5929...\nconst diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;\n\n// \u8a2d\u5b9a\u672c\u9031\u4e00 (00:00:00)\nconst mondayDate = new Date(now);\nmondayDate.setDate(now.getDate() + diffToMonday);\nmondayDate.setHours(0, 0, 0, 0);\n\n// \u8a2d\u5b9a\u4e0b\u9031\u4e00 (\u4f5c\u70ba\u7d50\u675f\u754c\u7dda)\nconst nextMondayDate = new Date(mondayDate);\nnextMondayDate.setDate(mondayDate.getDate() + 7);\n\nconst articles = [];\nconst rawItems = html.split('<div class=\"result_item\">');\n\n// 2. \u5b9a\u7fa9\u589e\u5f37\u7248 Regex (\u4e0d\u9650\u5c6c\u6027\u9806\u5e8f)\nconst titleRegex = /<h2>(.*?)<\\/h2>/;\nconst linkTagRegex = /<a[^>]+class=\"item_cover\"[^>]*>/; \nconst hrefRefex = /href=\"([^\\\\"\\\"]+)\"/;\nconst dateRegex = /class=\"item_date\">(.*?)<\\/div>/;\nconst categoryRegex = /class=\"item_type\"[^>]*>(.*?)<\\/a>/;\n\n// 3. \u904d\u6b77\u6240\u6709\u6587\u7ae0\nfor (let i = 1; i < rawItems.length; i++) {\n  const itemHtml = rawItems[i];\n  \n  const titleMatch = itemHtml.match(titleRegex);\n  const dateMatch = itemHtml.match(dateRegex);\n  const categoryMatch = itemHtml.match(categoryRegex);\n  \n  // \u89e3\u6790\u9023\u7d50\n  let link = null;\n  const linkTagMatch = itemHtml.match(linkTagRegex);\n  if (linkTagMatch) {\n     const hrefMatch = linkTagMatch[0].match(hrefRefex);\n     if (hrefMatch) link = hrefMatch[1];\n  }\n\n  // \u78ba\u4fdd\u6240\u6709\u6b04\u4f4d\u90fd\u6293\u5230\u4e86\n  if (titleMatch && link && dateMatch && categoryMatch) {\n    const title = titleMatch[1].trim();\n    const dateStr = dateMatch[1].trim(); // \u4f8b\u5982 \"2023-10-25\"\n    const category = categoryMatch[1].trim();\n    \n    // \u89e3\u6790\u6587\u7ae0\u65e5\u671f\u53ef\u4ee5\u6bd4\u8f03\u7684\u6642\u9593\u683c\u5f0f\n    // \u5047\u8a2d dateStr \u683c\u5f0f\u56fa\u5b9a\u70ba YYYY-MM-DD\n    const parts = dateStr.split('-');\n    if (parts.length === 3) {\n        // new Date(y, m-1, d)\n        const articleDate = new Date(\n            parseInt(parts[0], 10), \n            parseInt(parts[1], 10) - 1, \n            parseInt(parts[2], 10)\n        );\n        \n        // 4. \u3010\u95dc\u9375\u904e\u6ffe\u3011\u6539\u70ba\u8303\u570d\u5224\u65b7\uff1a >= \u672c\u9031\u4e00 \u4e14 < \u4e0b\u9031\u4e00\n        if (articleDate >= mondayDate && articleDate < nextMondayDate) {\n            \n            let brand = '\text{其他}';\n            if (category === '\u6d88\u8cbb\u8005\u6d1e\u5bdf') brand = 'iBuzz(\u6d88\u8cbb\u8005\u6d1e\u5bdf)';\n            else if (category === '\u7db2\u7d05\u884c\u92b7\u7b56\u7565') brand = 'Asia KOL';\n            else if (category === '\u6578\u64da\u5206\u6790\u89e3\u65b9') brand = '\u696d\u52d9\u63d0\u4f9b';\n            else if (category === '\u793e\u7fa4\u7c89\u7d72\u5718\u5065\u6aa2') brand = 'Fans Feed';\n\n            const full_link = link.startsWith('http') ? link : 'https://www.i-buzz.com.tw' + link;\n\n            articles.push({\n              json: {\n                title: title,\n                date: dateStr,\n                brand: brand,\n                full_link: full_link\n              }\n            });\n        }\n    }\n  }\n}\n\nreturn articles;"
+                "jsCode": "const items = $input.all();\nif (items.length === 0 || !items[0].json.data) {\n  return [];\n}\nconst html = items[0].json.data;\nconst now = new Date();\nconst currentDay = now.getDay();\nconst diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;\nconst mondayDate = new Date(now);\nmondayDate.setDate(now.getDate() + diffToMonday);\nmondayDate.setHours(0, 0, 0, 0);\nconst nextMondayDate = new Date(mondayDate);\nnextMondayDate.setDate(mondayDate.getDate() + 7);\nconst articles = [];\nconst rawItems = html.split('<div class=\"result_item\">');\nconst titleRegex = /<h2>(.*?)<\\/h2>/;\nconst linkTagRegex = /<a[^>]+class=\"item_cover\"[^>]*>/; \nconst hrefRefex = /href=\"([^\\\"\\\\\"]+)\"/;\nconst dateRegex = /class=\"item_date\">(.*?)<\\/div>/;\nconst categoryRegex = /class=\"item_type\"[^>]*>(.*?)<\\/a>/;\nfor (let i = 1; i < rawItems.length; i++) {\n  const itemHtml = rawItems[i];\n  const titleMatch = itemHtml.match(titleRegex);\n  const dateMatch = itemHtml.match(dateRegex);\n  const categoryMatch = itemHtml.match(categoryRegex);\n  let link = null;\n  const linkTagMatch = itemHtml.match(linkTagRegex);\n  if (linkTagMatch) {\n     const hrefMatch = linkTagMatch[0].match(hrefRefex);\n     if (hrefMatch) link = hrefMatch[1];\n  }\n  if (titleMatch && link && dateMatch && categoryMatch) {\n    const title = titleMatch[1].trim();\n    const dateStr = dateMatch[1].trim();\n    const category = categoryMatch[1].trim();\n    const parts = dateStr.split('-');\n    if (parts.length === 3) {\n        const articleDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));\n        if (articleDate >= mondayDate && articleDate < nextMondayDate) {\n            let brand = '其他';\n            if (category === '消費者洞察') brand = 'iBuzz(消費者洞察)';\n            else if (category === '網紅行銷策略') brand = 'Asia KOL';\n            else if (category === '數據分析解方') brand = '業務提供';\n            else if (category === '社群粉絲團健檢') brand = 'Fans Feed';\n            const full_link = link.startsWith('http') ? link : 'https://www.i-buzz.com.tw' + link;\n            articles.push({ json: { title: title, date: dateStr, brand: brand, full_link: full_link } });\n        }\n    }\n  }\n}\nreturn articles;"
             },
-            {
-                "parameters": {
-                    "mode": "combine",
-                    "combineBy": "combineByPosition",
-                    "options": {}
-                },
-                "type": "n8n-nodes-base.merge",
-                "typeVersion": 3.2,
-                "position": [
-                    688,
-                    192
-                ],
-                "id": "6457bdfc-7c94-4cb6-ada9-7db58581649b",
-                "name": "Merge"
+            "name": "拆出當周新文章",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                256,
+                176
+            ],
+            "id": "8e365691-3811-4648-9694-874e0c38421b"
+        },
+        {
+            "parameters": {
+                "mode": "combine",
+                "combineBy": "combineByPosition",
+                "options": {}
             },
-            {
-                "parameters": {
-                    "url": "https://www.googleapis.com/drive/v3/files",
-                    "authentication": "predefinedCredentialType",
-                    "nodeCredentialType": "googleDriveOAuth2Api",
-                    "sendQuery": true,
-                    "queryParameters": {
-                        "parameters": [
-                            {
-                                "name": "q",
-                                "value": "='{{ ($json.brand || '').includes('Asia KOL') ? '1CzGWmLOqeCkkjKnuxqVbDJup-PVFfU7H' : ($json.brand || '').includes('Fans Feed') ? '1czmLljMgsk1d33fQ_GTzpMl8GBuVsT14' : '1tWsHVkYwLBaBAFhAj68K9OntLCCoQAt3' }}' in parents and mimeType = 'application/vnd.google-apps.folder' and (name contains '{{ $today.toFormat('yyyyMMdd') }}' or name contains '{{ $today.toFormat('yyyy-MM-dd') }}' or name contains '{{ $today.toFormat('MMdd') }}' or name contains '{{ $today.toFormat('M/d') }}' or name contains '{{ $today.toFormat('M-d') }}') and trashed = false"
-                            },
-                            {
-                                "name": "fields",
-                                "value": "=files(id, name, webViewLink)"
-                            }
-                        ]
-                    },
-                    "options": {}
-                },
-                "name": "抓新文章雲端_v2",
-                "type": "n8n-nodes-base.httpRequest",
-                "typeVersion": 4.4,
-                "position": [
-                    480,
-                    416
-                ],
-                "id": "e27642aa-fc35-4b5e-827c-8b53103653c2",
-                "credentials": {
-                    "googleDriveOAuth2Api": {
-                        "id": "sgC7AFVdk5Y5yGOF",
-                        "name": "Google Drive account"
-                    }
-                },
-                "notes": "\u5347\u7d1a\u7248\uff1a\u652f\u63f4 8 \u4f4d\u65e8\u5e74\u4efd (yyyyMMdd) \u8207 \u6a6b\u7dda (yyyy-MM-dd) \u7b49\u591a\u7a2e\u683c\u5f0f"
-            }
-        ],
-        "connections": {
-            "每週一下午觸發": {
-                "main": [
-                    [
+            "name": "Merge",
+            "type": "n8n-nodes-base.merge",
+            "typeVersion": 3.2,
+            "position": [
+                1180,
+                192
+            ],
+            "id": "6457bdfc-7c94-4cb6-ada9-7db58581649b"
+        },
+        {
+            "parameters": {
+                "url": "https://www.googleapis.com/drive/v3/files",
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "googleDriveOAuth2Api",
+                "sendQuery": true,
+                "queryParameters": {
+                    "parameters": [
                         {
-                            "node": "抓取觀點文章頁面",
-                            "type": "main",
-                            "index": 0
-                        }
-                    ]
-                ]
-            },
-            "抓取觀點文章頁面": {
-                "main": [
-                    [
-                        {
-                            "node": "拆出當周新文章",
-                            "type": "main",
-                            "index": 0
-                        }
-                    ]
-                ]
-            },
-            "每月1號觸發": {
-                "main": [
-                    [
-                        {
-                            "node": "設定參數",
-                            "type": "main",
-                            "index": 0
-                        }
-                    ]
-                ]
-            },
-            "設定參數": {
-                "main": [
-                    [
-                        {
-                            "node": "複製 Template",
-                            "type": "main",
-                            "index": 0
-                        }
-                    ]
-                ]
-            },
-            "複製 Template": {
-                "main": [
-                    [
-                        {
-                            "node": "新增tab",
-                            "type": "main",
-                            "index": 0
-                        }
-                    ]
-                ]
-            },
-            "拆出當周新文章": {
-                "main": [
-                    [
-                        {
-                            "node": "Merge",
-                            "type": "main",
-                            "index": 0
+                            "name": "q",
+                            "value": "='{{ ($json.brand || '').includes('Asia KOL') ? '1CzGWmLOqeCkkjKnuxqVbDJup-PVFfU7H' : ($json.brand || '').includes('Fans Feed') ? '1czmLljMgsk1d33fQ_GTzpMl8GBuVsT14' : '1tWsHVkYwLBaBAFhAj68K9OntLCCoQAt3' }}' in parents and mimeType = 'application/vnd.google-apps.folder' and (name contains '{{ $today.toFormat('yyyyMMdd') }}' or name contains '{{ $today.toFormat('yyyy-MM-dd') }}' or name contains '{{ $today.toFormat('MMdd') }}' or name contains '{{ $today.toFormat('M/d') }}' or name contains '{{ $today.toFormat('M-d') }}') and trashed = false"
                         },
                         {
-                            "node": "抓新文章雲端_v2",
-                            "type": "main",
-                            "index": 0
+                            "name": "fields",
+                            "value": "files(id, name, webViewLink, parents)"
                         }
                     ]
-                ]
+                },
+                "options": {}
             },
-            "Merge": {
-                "main": [
-                    [
+            "name": "抓新文章雲端_v2",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.4,
+            "position": [
+                480,
+                416
+            ],
+            "id": "e27642aa-fc35-4b5e-827c-8b53103653c2",
+            "credentials": {
+                "googleDriveOAuth2Api": {
+                    "id": "sgC7AFVdk5Y5yGOF",
+                    "name": "Google Drive account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "url": "https://www.googleapis.com/drive/v3/files",
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "googleDriveOAuth2Api",
+                "sendQuery": true,
+                "queryParameters": {
+                    "parameters": [
                         {
-                            "node": "寫入當月分頁",
-                            "type": "main",
-                            "index": 0
+                            "name": "q",
+                            "value": "='{{ $json.files[0].parents[0] }}' in parents and name = '已上傳' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
+                        },
+                        {
+                            "name": "fields",
+                            "value": "files(id, name)"
                         }
                     ]
-                ]
+                },
+                "options": {}
             },
-            "抓新文章雲端_v2": {
-                "main": [
-                    [
+            "name": "尋找已上傳資料夾",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.4,
+            "position": [
+                700,
+                416
+            ],
+            "id": "f516842e-1234-5678-9abc-def012345678",
+            "credentials": {
+                "googleDriveOAuth2Api": {
+                    "id": "sgC7AFVdk5Y5yGOF",
+                    "name": "Google Drive account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "method": "PATCH",
+                "url": "=https://www.googleapis.com/drive/v3/files/{{ $node.抓新文章雲端_v2.json.files[0].id }}",
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "googleDriveOAuth2Api",
+                "sendQuery": true,
+                "queryParameters": {
+                    "parameters": [
                         {
-                            "node": "Merge",
-                            "type": "main",
-                            "index": 1
+                            "name": "addParents",
+                            "value": "={{ $json.files[0].id }}"
+                        },
+                        {
+                            "name": "removeParents",
+                            "value": "={{ $node.抓新文章雲端_v2.json.files[0].parents[0] }}"
                         }
                     ]
-                ]
+                },
+                "options": {}
+            },
+            "name": "搬移至已上傳",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.4,
+            "position": [
+                920,
+                416
+            ],
+            "id": "m516842e-1234-5678-9abc-def012345678",
+            "credentials": {
+                "googleDriveOAuth2Api": {
+                    "id": "sgC7AFVdk5Y5yGOF",
+                    "name": "Google Drive account"
+                }
             }
         }
+    ],
+    "connections": {
+        "每週一下午觸發": {
+            "main": [
+                [
+                    {
+                        "node": "抓取觀點文章頁面",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "抓取觀點文章頁面": {
+            "main": [
+                [
+                    {
+                        "node": "拆出當周新文章",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "每月1號觸發": {
+            "main": [
+                [
+                    {
+                        "node": "設定參數",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "設定參數": {
+            "main": [
+                [
+                    {
+                        "node": "複製 Template",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "複製 Template": {
+            "main": [
+                [
+                    {
+                        "node": "新增tab",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "拆出當周新文章": {
+            "main": [
+                [
+                    {
+                        "node": "Merge",
+                        "type": "main",
+                        "index": 0
+                    },
+                    {
+                        "node": "抓新文章雲端_v2",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Merge": {
+            "main": [
+                [
+                    {
+                        "node": "寫入當月分頁",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "抓新文章雲端_v2": {
+            "main": [
+                [
+                    {
+                        "node": "尋找已上傳資料夾",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "尋找已上傳資料夾": {
+            "main": [
+                [
+                    {
+                        "node": "搬移至已上傳",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "搬移至已上傳": {
+            "main": [
+                [
+                    {
+                        "node": "Merge",
+                        "type": "main",
+                        "index": 1
+                    }
+                ]
+            ]
+        }
     }
+}

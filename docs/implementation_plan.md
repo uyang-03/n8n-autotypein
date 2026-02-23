@@ -1,43 +1,38 @@
-# n8n Google Drive 整合除錯計畫
+# n8n Google Drive 整合與自動搬移計畫
 
-由於地端 n8n Google Drive 節點在檔案搜尋與地端憑證上有功能限制，我們改採直接呼叫 API 的方式來解決。
-
-## 需要使用者協助事項
-
-- **手動設定**: 由於先前自動匯入節點失敗，使用者需要手動設定 HTTP Request 節點。
-- **憑證使用**: 確保 HTTP Request 節點使用的是 `Google Drive OAuth2 API` 憑證。
+本計畫旨在優化 n8n 工作流，實現文章處理完後自動將雲端資料夾搬移至「已上傳」分頁，以保持母資料夾整潔。
 
 ## 建議變更
 
-### 工作流程架構 (Workflow Architecture)
+### n8n 工作流 (autotypein.json)
 
-- **替換項目**: 標準 Google Drive 節點 -> **HTTP Request 節點**
-  - **方法**: GET
-  - **網址**: `https://www.googleapis.com/drive/v3/files`
-  - **查詢**: 使用 `q` 參數搭配 `name contains` (名稱包含) 與 `parents` (父資料夾) 進行篩選。
-- **資料合併**: 使用 **Merge 節點** 將 API 搜尋結果與原始文章資料合併。
+1. **尋找「已上傳」資料夾 (Find Uploaded Folder)**:
+   - **節點類型**: HTTP Request
+   - **邏輯**: 在目前的品牌母資料夾下，搜尋名稱完全等於「已上傳」的資料夾。
+   - **目的**: 取得目標路徑的 `folderId`。
 
-### 設定細節
-
-- **目標資料夾**: `1tWsHVkYwLBaBAFhAj68K9OntLCCoQAt3` (i-Buzz消費者洞察)
-- **搜尋語法**: `'<Folder_ID>' in parents and mimeType = 'application/vnd.google-apps.folder' and name contains '{{ $today.format('yyyyMMdd') }}'`
-- **輸出欄位**: `files(id, name, webViewLink)`
+2. **搬移資料夾 (Move Folder)**:
+   - **節點類型**: HTTP Request
+   - **方法**: `PATCH`
+   - **URL**: `https://www.googleapis.com/drive/v3/files/{{ 原始資料夾ID }}`
+   - **參數**:
+     - `addParents`: 剛才找到的「已上傳」資料夾 ID。
+     - `removeParents`: 原始品牌母資料夾 ID。
 
 ### Google Sheets 自動化 (Apps Script)
 
-- **目標**:
-    1. D-H 欄位自動加入核取方塊。
-    2. **A 欄位日期自動合併** (將相同日期的列群組起來)。
-- **觸發時機**: `onChange` (變更時，用於偵測 n8n寫入事件)。
-- **實作邏輯**:
-  - 掃描 A 欄位，尋找連續且相同的日期數值。
-  - 使用 `mergeVertically()` 進行垂直合併，將其視覺化分組。
-  - **移除項目**: I 欄位的智慧方塊邏輯 (應使用者要求移除)。
+- 維持 **v17 增量日期合併** 與 **核取方塊轉換** 邏輯。
 
 ## 驗證計畫
 
-### 手動驗證流程
+### 自動化測試
 
-- **執行測試**: 使用範例文章執行一次工作流程。
-- **檢查輸出**: 確認 HTTP Request 節點回傳的是一個 **Folder (資料夾)** 物件 (mimeType: `application/vnd.google-apps.folder`)。
-- **檢查試算表**: 確認 "Cloud Link" 欄位填入的是有效的 Google Drive **資料夾** 連結。
+1. **n8n 完整測試**: 執行工作流，確認：
+   - 資料成功寫入 Google Sheets。
+   - 原始資料夾從母目錄消失。
+   - 資料夾出現在該母目錄下的「已上傳」子目錄中。
+2. **連結有效性測試**: 確認試算表中的「雲端連結」在搬移後依然能正常開啟。
+
+### 手動驗證
+
+- 若母資料夾下沒有「已上傳」資料夾，工作流將因找不到目標而報錯（此為預期行為，請使用者確保各品牌母目錄下皆有名為「已上傳」的資料夾）。
