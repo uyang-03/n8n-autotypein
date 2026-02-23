@@ -1,0 +1,63 @@
+# 系統遷移與備份指南 (Migration & Backup Guide)
+
+這份文件說明如何將您在地端建立的自動化系統 (n8n + Google Sheets Apps Script) 遷移到另一台電腦，或透過 GitHub 進行版本控管。
+
+## 1. 可以透過 GitHub 執行嗎？ (GitHub Usage)
+
+**答案是：可以，但有些東西需要「手動設定」。**
+
+GitHub 非常適合用來儲存您的 **Workflow JSON 檔案** 與 **Apps Script 程式碼**，但它不會儲存您的「登入憑證 (Credentials)」。
+
+### 流程建議
+
+1. 將 n8n 的 `.json` 檔案與 `.js` 腳本檔案上傳到 GitHub。
+2. 在另一台電腦下載 (git clone) 這些檔案。
+3. 在另一台電腦安裝並啟動 n8n。
+4. **重要：** 重新匯入工作流並「重新設定憑證」。
+
+---
+
+## 2. n8n 工作流遷移步驟 (Transfer n8n)
+
+### 第一步：導出工作流 (Export)
+
+1. 在原本的 n8n 介面，打開您的 Workflow。
+2. 點擊右上角的 **「...」 (更多選項)」** -> **「Download (下載)」**。
+3. 這會得到一個 `.json` 檔案。
+
+### 第二步：處理憑證 (Handle Credentials)
+
+* **注意**：n8n 的 JSON 檔案內**不包含**您的 Client ID、Secret 或登入狀態。
+* 在另一台電腦安裝 n8n 後，您需要：
+    1. 重新建立 `Google Sheets OAuth2 API` 憑證。
+    2. 重新建立 `Google Drive OAuth2 API` 憑證。
+    3. 將這些新憑證選入匯入的節點中。
+
+### 第三步：導入工作流 (Import)
+
+1. 在其另一台電腦的 n8n，點擊左側選單的 **「Workflows」** -> **「Add Workflow」**。
+2. 點擊右上角 **「...」** -> **「Import from File (從檔案匯入)」**。
+3. 選取您的 JSON 檔案。
+
+---
+
+## 3. Google Sheets Apps Script 遷移 (Transfer Apps Script)
+
+這部分最簡單，因為腳本是跟著「雲端試算表」走的。
+
+* **同一張表**：如果您在另一台電腦也是開同一個 Google 試算表網址，腳本已經在那裡了，**完全不需要搬移**。
+* **不同張表**：如果您要換一張新表：
+    1. 在新表開啟 `擴充功能` -> `Apps Script`。
+    2. 將 `smart_chip_script.js` 的內容全文貼入。
+    3. **記得設定觸發器**：重新設定 `On Change` 觸發器。
+
+---
+
+## 4. 總結 (Summary)
+
+要在另一台電腦執行，您需要：
+
+1. **安裝 Node.js 與 n8n**。
+2. **下載 Workflow JSON**：並在新的 n8n 匯入。
+3. **重新授權**：確保 OAuth2 憑證在新的環境下也能正常運作 (Callback URL 可能會變，如果是不同網域名稱的話)。
+4. **路徑檢查**：如果工作流中有用到本地磁碟路徑 (例如 `C:\Users\...`)，記得修改。

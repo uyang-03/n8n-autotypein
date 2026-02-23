@@ -1,0 +1,132 @@
+# 自動化系統結案報告與運作邏輯說明書
+
+## 1. 系統架構總覽 (System Architecture)
+
+本專案旨在自動化 **「每日文章資料搜集與歸檔」** 流程。系統由兩大核心組件構成：
+1.  **n8n 自動化工作流程 (Local Host)**：雙軌制自動化。
+2.  **Google Sheets 自動化腳本 (Apps Script)**：負責資料寫入後的「最後一哩路」。
+
+### 系統流程圖
+```mermaid
+graph TD
+    subgraph n8n_Local [n8n 自動化流程]
+        A[每週一排程] --> B(抓取 i-Buzz 官網文章)
+        B --> C{篩選日期}
+        C -- 非本週一 --> X[忽略]
+        C -- 是本週一 --> D[解析文章資訊]
+        D --> E{品牌判斷}
+        E --> F[搜尋 Google Drive 對應資料夾]
+        F --> G[合併文章與 Drive 連結]
+        G --> H(寫入 Google Sheets)
+    end
+    
+    subgraph Google_Sheets [Google Sheets 後處理]
+        H --> I[觸發 OnChange 事件]
+        I --> J{Apps Script 執行}
+        J --> K[轉換 Checkbox (D-H欄)]
+        J --> L[增量日期合併 (A欄)]
+    end
+```
+
+---
+
+## 2. n8n 工作流程邏輯 (Workflow Logic)
+
+### 2.1 主流程：每週文章同步 (Weekly Article Sync)
+
+```mermaid
+sequenceDiagram
+    participant Scheduler as 排程 (每週一)
+    participant Scraper as 爬蟲 (HTTP Request)
+    participant Parser as 解析器 (Code Node)
+    participant Drive as Google Drive API
+    participant Sheets as Google Sheets
+    
+    Scheduler->>Scraper: 觸發執行
+    Scraper->>Parser: 回傳 HTML 原始碼
+    Parser->>Parser: 1. 計算本週一日期<br/>2. Regex 解析<br/>3. 過濾文章
+    
+    par 平行處理
+        Parser->>Sheets: 傳遞文章標題/連結
+        Parser->>Drive: 查詢資料夾 (依品牌 ID)
+    end
+    
+    Drive-->>Sheets: 回傳 WebViewLink
+    Sheets->>Sheets: 寫入最新一列
+```
+
+- **觸發**: 每週一 15:00 (`Schedule Trigger`).
+- **步驟詳解**:
+    1.  **抓取資料 (`HTTP Request`)**: 存取 `https://www.i-buzz.com.tw/article/viewpoints/` 取得原始 HTML。
+    2.  **解析與過濾 (`Code Node`)**:
+        - **日期計算**: 自動計算「本週一」的日期。
+        - **HTML 解析**: 提取文章標題、日期、分類、連結。
+        - **過濾**: 僅保留 **日期 == 本週一** 的文章。
+    3.  **並行處理 (Parallel Execution)**:
+        - **路徑 B (Google Drive Search)**:
+            - **動態父資料夾選擇**: 依據品牌 (Asia KOL / Fans Feed / i-Buzz) 選擇對應 ID。
+            - **搜尋語法 (`q`)**: `'<Parent_ID>' in parents` and `name contains 'YYYYMMdd'`。
+    4.  **資料合併 (`Merge Node`)**: 將「文章資料」與「Drive 搜尋到的雲端連結」合併。
+    5.  **寫入試算表 (`Google Sheets Node`)**: 寫入 `yyyy/MM` 分頁。
+
+### 2.2 維護流程：每月分頁建立 (Monthly Maintenance)
+```mermaid
+graph LR
+    A[每月1號] --> B[設定參數]
+    B --> C[複製 Template]
+    C --> D[重命名為 YYYY/MM]
+    D --> E[移動至 Index 3]
+```
+
+---
+
+## 3. Google Apps Script 運作邏輯 (Post-Processing)
+
+當 n8n 寫入資料後，Google Sheets 腳本會自動接手進行格式整理。目前採用的是 **v17 (Incremental Merge)** 版本。
+
+### 3.1 增量日期合併演算法
+```mermaid
+flowchart TD
+    Start[新資料寫入] --> GetLast[取得最後一列 LastRow]
+    GetLast --> CheckPrev[檢查上一列 PrevRow 日期]
+    
+    CheckPrev -- 日期不同 --> End[結束 (不做動作)]
+    CheckPrev -- 日期相同 --> FindHead[尋找上一列的合併起始點 HeadRow]
+    FindHead --> Merge[執行 mergeVertically]
+    Merge --> Style[設定置中對齊]
+    Style --> End
+```
+
+### 核心功能 1：自動核取方塊 (Auto-Checkboxes)
+- **範圍**: D 欄至 H 欄。
+- **邏輯**: 若內容為文字 "TRUE" / "FALSE"，自動轉換為 **互動式 Checkbox** 並打勾。
+
+### 核心功能 2：增量日期合併 (Incremental Date Merge)
+- **觸發對象**: 只針對 **「最後一列 (最新寫入的那筆資料)」**。
+- **優勢**:
+    - **極速**: 永遠只處理 1-2 個儲存格。
+    - **安全**: 絕對不會去動到上面已經整理好的歷史資料。
+
+---
+
+## 4. 技術與維護指南 (Technical Guide)
+
+### 4.1 重要 ID 列表
+- **Google Sheets ID**: `1_srJdmwO8PZtXgbUeZpUWB1T79ubXhXWRZyp2LzvZmo`
+- **Template Sheet ID**: `1391772714`
+- **Google Drive 資料夾**:
+    - Asia KOL: `1CzGWmLOqeCkkjKnuxqVbDJup-PVFfU7H`
+    - Fans Feed: `1czmLljMgsk1d33fQ_GTzpMl8GBuVsT14`
+    - i-Buzz/Default: `1tWsHVkYwLBaBAFhAj68K9OntLCCoQAt3`
+
+### 4.2 常見問題排除
+- **Q: 為什麼日期沒合併？**
+    - A: v17 版邏輯是比對「顯示文字」。請確認 n8n 寫入的日期格式 (YYYY-MM-DD) 是否與人工輸入的格式一致。建議統一使用 YYYY/MM/DD 格式。
+- **Q: 為什麼每月 1 號沒有自動產生新分頁？**
+    - A: 請檢查 n8n 是否有保持開啟 (`Active`)。
+
+---
+
+**專案狀態**: ✅ 已完成驗證與部署
+**文件版本**: v1.2 (新增 Mermaid 流程圖)
+**最後更新**: 2026/02/10

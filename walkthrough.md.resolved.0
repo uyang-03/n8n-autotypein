@@ -1,0 +1,28 @@
+# Local n8n Setup and Troubleshooting Walkthrough
+
+## 1. Local Environment Setup
+We successfully established a local n8n environment using `npx` on Windows.
+
+- **Startup Script**: Created [C:\Users\yuyan\.gemini\antigravity\scratch\start_n8n.bat](file:///C:/Users/yuyan/.gemini/antigravity/scratch/start_n8n.bat) for one-click startup.
+- **Access URL**: [http://localhost:5678](http://localhost:5678)
+
+## 2. Google Cloud Credential Fix
+The primary issue preventing the workflow from running was missing OAuth2 credentials for the local instance.
+
+### Problem
+- [Untitled-2.json](file:///c:/Users/yuyan/Downloads/Untitled-2.json) showed invalid credential errors for Google Sheets nodes.
+- Local n8n cannot use the same credentials as the cloud version due to callback URL differences.
+
+### Solution
+1.  **Created New Project**: `n8n-local` in Google Cloud Console.
+2.  **Configured OAuth**:
+    -   **Redirect URI**: Added `http://localhost:5678/rest/oauth2-credential/callback`.
+    -   *Correction*: User initially placed this in "Origins", corrected to "Redirect URIs".
+3.  **Authenticated**: Successfully connected n8n to Google account using the new Client ID/Secret.
+
+## 3. Workflow Verification
+The user confirmed that [Untitled-2.json](file:///c:/Users/yuyan/Downloads/Untitled-2.json) now executes successfully with the new credentials applied.
+
+## Next Steps (Optional)
+- **Tunneling**: If you need to receive external Webhooks (e.g., from LINE, creating an API endpoint), you will need to start n8n with `--tunnel`.
+- **Auto-start**: Configuring n8n to start with Windows.

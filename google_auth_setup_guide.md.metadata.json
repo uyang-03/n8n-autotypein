@@ -1,0 +1,5 @@
+{
+  "artifactType": "ARTIFACT_TYPE_WALKTHROUGH",
+  "summary": "Step-by-step guide to setting up Google Cloud OAuth2 credentials for local n8n. Includes enabling APIs, creating OAuth Client ID, and configuring n8n credentials.",
+  "updatedAt": "2026-02-09T07:21:58.776077100Z"
+}

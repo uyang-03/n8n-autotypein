@@ -1,0 +1,109 @@
+# 自動化系統結案報告與運作邏輯說明書
+
+## 1. 系統架構總覽 (System Architecture)
+
+本專案旨在自動化 **「每日文章資料搜集與歸檔」** 流程。系統由兩大核心組件構成：
+1.  **n8n 自動化工作流程 (Local Host)**：雙軌制自動化。
+    - **每週流程**: 負責抓取 i-Buzz 官網文章、搜尋 Google Drive 雲端資料夾，並將資料整合寫入 Google Sheets。
+    - **每月流程**: 負責自動建立下個月的試算表分頁 (Tab)。
+2.  **Google Sheets 自動化腳本 (Apps Script)**：負責資料寫入後的「最後一哩路」，包括格式優化與視覺整理。
+
+---
+
+## 2. n8n 工作流程邏輯 (Workflow Logic)
+
+本工作流程分為兩個獨立的觸發路徑：
+
+### 2.1 主流程：每週文章同步 (Weekly Article Sync)
+- **觸發**: 每週一 15:00 (`Schedule Trigger`).
+- **步驟詳解**:
+    1.  **抓取資料 (`HTTP Request`)**: 存取 `https://www.i-buzz.com.tw/article/viewpoints/` 取得原始 HTML。
+    2.  **解析與過濾 (`Code Node`)**:
+        - **日期計算**: 自動計算「本週一」的日期 (若今天是週二~週日，則回推至上一個週一)。
+        - **HTML 解析**: 使用 Regex 提取文章標題、日期、分類、連結。
+        - **過濾**: 僅保留 **日期 == 本週一** 的文章。
+        - **品牌映射**:
+            - `消費者洞察` -> `iBuzz(消費者洞察)`
+            - `網紅行銷策略` -> `Asia KOL`
+            - `數據分析解方` -> `業務提供`
+            - `社群粉絲團健檢` -> `Fans Feed`
+            - 其他 -> `其他`
+    3.  **並行處理 (Parallel Execution)**:
+        - **路徑 A**: 直接傳遞整理好的文章資料。
+        - **路徑 B (Google Drive Search)**:
+            - 使用 `HTTP Request` 呼叫 Google Drive API v3。
+            - **動態父資料夾選擇**:
+                - 若品牌含 `Asia KOL` -> ID: `1CzGWmLOqeCkkjKnuxqVbDJup-PVFfU7H`
+                - 若品牌含 `Fans Feed` -> ID: `1czmLljMgsk1d33fQ_GTzpMl8GBuVsT14`
+                - 其他 (預設) -> ID: `1tWsHVkYwLBaBAFhAj68K9OntLCCoQAt3`
+            - **搜尋語法 (`q`)**:
+                - `'<Parent_ID>' in parents` (指定父資料夾)
+                - `mimeType = 'application/vnd.google-apps.folder'` (只找資料夾)
+                - `name contains 'YYYYMMdd'` (資料夾名稱需包含當天日期)
+                - `trashed = false` (排除垃圾桶)
+    4.  **資料合併 (`Merge Node`)**: 將「文章資料」與「Drive 搜尋到的雲端連結」依序合併 (Combine by Position)。
+    5.  **寫入試算表 (`Google Sheets Node`)**:
+        - **目標試算表**: `1_srJdmwO8PZtXgbUeZpUWB1T79ubXhXWRZyp2LzvZmo`
+        - **目標工作表**: 動態名稱 `{{ $now.format('yyyy/MM') }}` (例如 `2026/02`)。
+        - **欄位寫入**: 日期、品牌、文章、官網連結、雲端連結 (`webViewLink`)。
+        - **預設值填充**: 官網=TRUE, 首頁=TRUE, 其他=FALSE。
+
+### 2.2 維護流程：每月分頁建立 (Monthly Maintenance)
+- **觸發**: 每月 1 號 (`Schedule Trigger`).
+- **步驟詳解**:
+    1.  **設定參數 (`Set Node`)**: 定義試算表 ID、模板 ID (`1391772714`)、新分頁名稱 (`yyyy/MM`)。
+    2.  **複製模板 (`HTTP Request: copyTo`)**: 呼叫 Sheets API 將模板分頁複製到當前試算表。
+    3.  **重命名與移動 (`HTTP Request: batchUpdate`)**: 
+        - 將複製出來的 `Copy of Template` 改名為當月月份 (如 `2026/02`)。
+        - 移動至 Index 3 (確保在正確的順位)。
+
+---
+
+## 3. Google Apps Script 運作邏輯 (Post-Processing)
+
+當 n8n 寫入資料後，Google Sheets 腳本會自動接手進行格式整理。目前採用的是 **v17 (Incremental Merge)** 版本。
+
+### 核心功能 1：自動核取方塊 (Auto-Checkboxes)
+- **範圍**: D 欄至 H 欄 (官網、電子報、首頁、媒體、臉書)。
+- **邏輯**:
+    - 檢查新增資料列的 D~H 欄。
+    - 若內容為文字 "TRUE" / "FALSE"，自動轉換為 **互動式 Checkbox**。
+    - 統一設為 TRUE (打勾狀態)。
+
+### 核心功能 2：增量日期合併 (Incremental Date Merge)
+為了解決重複日期顯示雜亂的問題，採用 **「增量合併」** 演算法。
+
+- **觸發對象**: 只針對 **「最後一列 (最新寫入的那筆資料)」**。
+- **邏輯流程**:
+    1. **讀取**: 讀取最新一列 (Target Row) 的日期。
+    2. **比對**: 讀取 **「上一列 (Previous Row)」** 的日期。
+    3. **判斷**:
+        - **若日期相同**: 表示這筆資料屬於今天的群組。
+            - 程式會找出上一列所屬合併範圍的 **「起始列 (Head)」**。
+            - 將最新一列 **「融合 (Merge)」** 進這個範圍。
+        - **若日期不同**: 表示這是新的一天 (新的群組)。
+            - 程式 **不做任何動作** (保持獨立)。
+
+---
+
+## 4. 技術與維護指南 (Technical Guide)
+
+### 4.1 重要 ID 列表
+- **Google Sheets ID**: `1_srJdmwO8PZtXgbUeZpUWB1T79ubXhXWRZyp2LzvZmo`
+- **Template Sheet ID**: `1391772714`
+- **Google Drive 資料夾**:
+    - Asia KOL: `1CzGWmLOqeCkkjKnuxqVbDJup-PVFfU7H`
+    - Fans Feed: `1czmLljMgsk1d33fQ_GTzpMl8GBuVsT14`
+    - i-Buzz/Default: `1tWsHVkYwLBaBAFhAj68K9OntLCCoQAt3`
+
+### 4.2 常見問題排除
+- **Q: 為什麼日期沒合併？**
+    - A: v17 版邏輯是比對「顯示文字」。請確認 n8n 寫入的日期格式 (YYYY-MM-DD) 是否與人工輸入的格式一致。建議統一使用 YYYY/MM/DD 格式。
+- **Q: 為什麼每月 1 號沒有自動產生新分頁？**
+    - A: 請檢查 n8n 是否有保持開啟 (`Active`)。若地端電腦關機，排程將不會觸發。建議設定電腦定期開機或將 n8n 遷移至雲端伺服器。
+
+---
+
+**專案狀態**: ✅ 已完成驗證與部署
+**文件版本**: v1.1 (依據實際 JSON 流程更新)
+**最後更新**: 2026/02/10

@@ -1,0 +1,6 @@
+{
+  "artifactType": "ARTIFACT_TYPE_OTHER",
+  "summary": "Fixed Mermaid syntax error by quoting labels with parentheses.",
+  "updatedAt": "2026-02-10T04:16:30.327710700Z",
+  "version": "3"
+}

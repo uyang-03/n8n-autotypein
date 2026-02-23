@@ -1,0 +1,30 @@
+# 在地端運行 n8n 實施計劃 (Implementation Plan)
+
+本計劃旨在協助用戶在 Windows 環境下，使用 Node.js (`npx`) 在地端運行 n8n 自動化工具。
+
+## User Review Required
+- **確認 Node.js 版本**: 已檢測到 Node.js v24.13.0，符合 n8n 運行需求 (需 Node.js v18.17.0+)。
+- **端口佔用**: n8n 預設使用 Port 5678，需確認未被佔用。
+
+## Proposed Changes
+
+### Environment Setup
+- 使用 `npx` 直接運行 n8n，無需全域安裝，保持環境單純。
+- 若用戶需要長期運行，建議使用 `npm install -g n8n` 進行安裝。
+- 考慮到用戶可能需要 Webhook 功能，將介紹 `--tunnel` 參數的使用。
+
+### Execution Steps
+1.  **Check Environment**: 確認 Node.js (已完成)。
+2.  **Run n8n**: 使用 `npx n8n` 啟動服務。
+3.  **Access UI**: 引導用戶訪問 `http://localhost:5678`。
+4.  **Workflow Import**: 說明如何導入 JSON 格式的 Workflow。
+
+## Verification Plan
+
+### Automated Verification
+- 嘗試執行 `npx n8n --version` 確認工具可用性。
+- 檢查 `http://localhost:5678` 是否可訪問 (需用戶配合 verification 或使用瀏覽器工具)。
+
+### Manual Verification
+- 用戶在瀏覽器打開 n8n 介面。
+- 創建並測試一個簡單的 Workflow (e.g., Manually trigger -> Console log)。

@@ -1,0 +1,66 @@
+# 地端 n8n 設定與疑難排解指南
+
+## 1. 地端環境設定
+
+我們成功在 Windows 環境下使用 `npx` 建立了地端 n8n 環境。
+
+- **啟動腳本**: 建立了 [C:\Users\yuyan\.gemini\antigravity\scratch\start_n8n.bat](file:///C:/Users/yuyan/.gemini/antigravity/scratch/start_n8n.bat)，可一鍵啟動。
+- **存取網址**: [http://localhost:5678](http://localhost:5678)
+
+## 4. Google Drive Integration (Automated Folder Search via API)
+
+We implemented a robust folder search mechanism using the n8n HTTP Request node and the Google Drive API v3.
+
+### Workflow Logic
+1.  **Extract Folder ID**: We locate the parent folder ID (`1OaXcIEY0CXDTHL4TzBbfvwrMUeaXrzPD`) from the source HTML.
+2.  **API Search Query**:
+    - Queries for folders only: `mimeType = 'application/vnd.google-apps.folder'`
+    - Searches within specific parent folder: `'<ID>' in parents`
+    - Matches generic date format: `name contains '{{ $today.format('yyyyMMdd') }}'`
+3.  **Dynamic Mapping**:
+    - If `Brand` is "Asia KOL", search in folder `1CzGWmLOqeCkkjKnuxqVbDJup-PVFfU7H`
+    - If `Brand` is "Fans Feed", search in folder `1czmLljMgsk1d33fQ_GTzpMl8GBuVsT14`
+    - Default (Consumer Insights), search in folder `1tWsHVkYwLBaBAFhAj68K3OntLCCoQAt3`
+
+## 5. Google Sheets Automation (Apps Script)
+
+We deployed a specialized Google Apps Script to automate data formatting upon entry.
+
+### Features
+- **Auto-Checkboxes (Columns D-H)**: Converts `TRUE`/`FALSE` text strings into interactive checkboxes.
+- **Smart Link Conversion (Column I)**:
+    - Automatically detects Google Drive URLs.
+    - Converts plain text URLs into clickable **Rich Text Links** with preview cards.
+    - *Note: Automatic conversion to "File Smart Chips" is currently limited by Google platform availability for this account. The script provides the best possible fallback (Rich Link) which allows for one-click manual conversion via the UI.*
+
+### Code (v11 Stable)
+The script uses a hybrid approach to ensure stability:
+```javascript
+// ... (Logic to ensure RichTextValue is created for every Drive link)
+```
+
+## 2. Google Cloud 憑證修復
+
+導致 Workflow 無法執行的主要原因是地端實例缺少 OAuth2 憑證。
+
+### 問題描述
+
+- [Untitled-2.json](file:///c:/Users/yuyan/Downloads/Untitled-2.json) 顯示 Google Sheets 節點有憑證錯誤。
+- 由於 Callback URL 不同，地端 n8n 無法直接共用雲端版本的憑證。
+
+### 解決方案
+
+1. **建立新專案**: 在 Google Cloud Console 中建立了 `n8n-local` 專案。
+2. **設定 OAuth**:
+    - **重新導向 URI**: 新增了 `http://localhost:5678/rest/oauth2-credential/callback`。
+    - *修正*: 用戶最初將其填入 "JavaScript 來源 (Origins)"，已更正為 "重新導向 URI (Redirect URIs)"。
+3. **完成驗證**: 使用新的 Client ID/Secret 成功將 n8n 連接至 Google 帳戶。
+
+## 3. Workflow 驗證
+
+用戶確認在套用新憑證後，[Untitled-2.json](file:///c:/Users/yuyan/Downloads/Untitled-2.json) 已可成功執行。
+
+## 後續步驟 (選用)
+
+- **Tunneling (通道)**: 如果您需要接收外部 Webhooks (例如來自 LINE 或建立 API 端點)，啟動 n8n 時需要加上 `--tunnel` 參數。
+- **自動啟動**: 設定 n8n 隨 Windows 開機自動啟動。
