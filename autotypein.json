@@ -332,6 +332,14 @@
                         {
                             "name": "fields",
                             "value": "files(id, name, webViewLink, parents)"
+                        },
+                        {
+                            "name": "supportsAllDrives",
+                            "value": "true"
+                        },
+                        {
+                            "name": "includeItemsFromAllDrives",
+                            "value": "true"
                         }
                     ]
                 },
@@ -367,6 +375,14 @@
                         {
                             "name": "fields",
                             "value": "files(id, name)"
+                        },
+                        {
+                            "name": "supportsAllDrives",
+                            "value": "true"
+                        },
+                        {
+                            "name": "includeItemsFromAllDrives",
+                            "value": "true"
                         }
                     ]
                 },
@@ -402,7 +418,11 @@
                         },
                         {
                             "name": "removeParents",
-                            "value": "={{ ($node[\"拆出當周新文章\"].json.brand || \"\").includes(\"Asia KOL\") ? \"1CzGWmLOqeCkkjKnuxqVbDJup-PVFfU7H\" : ($node[\"拆出當周新文章\"].json.brand || \"\").includes(\"Fans Feed\") ? \"1czmLljMgsk1d33fQ_GTzpMl8GBuVsT14\" : \"1tWsHVkYwLBaBAFhAj68K9OntLCCoQAt3\" }}"
+                            "value": "={{ $node[\"抓新文章雲端_v2\"].json.files[0].parents[0] }}"
+                        },
+                        {
+                            "name": "supportsAllDrives",
+                            "value": "true"
                         }
                     ]
                 },
