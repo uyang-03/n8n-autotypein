@@ -28,7 +28,7 @@
                 "operation": "append",
                 "documentId": {
                     "__rl": true,
-                    "value": "https://docs.google.com/spreadsheets/d/1_srJdmwO8PZtXgbUeZpUWB1T79ubXhXWRZyp2LzvZmo/edit?gid=1708738764#gid=1708738764",
+                    "value": "YOUR_SPREADSHEET_ID_HERE",
                     "mode": "url"
                 },
                 "sheetName": {
@@ -158,8 +158,8 @@
             "id": "fc288244-f005-4d6c-8894-4cffd6f49ae7",
             "credentials": {
                 "googleSheetsOAuth2Api": {
-                    "id": "QDgBdmnsKlu9ijRH",
-                    "name": "Google Sheets account"
+                    "id": "YOUR_CREDENTIAL_ID_HERE",
+                    "name": "YOUR_CREDENTIAL_NAME_HERE"
                 }
             },
             "notes": "寫入當月 Tab，格式：日期|品牌|文章|...|官網連結"
@@ -218,7 +218,7 @@
                     "parameters": [
                         {
                             "name": "q",
-                            "value": "='{{ ($json.brand || \"\").includes(\"Asia KOL\") ? \"1CzGWmLOqeCkkjKnuxqVbDJup-PVFfU7H\" : ($json.brand || \"\").includes(\"Fans Feed\") ? \"1czmLljMgsk1d33fQ_GTzpMl8GBuVsT14\" : \"1tWsHVkYwLBaBAFhAj68K9OntLCCoQAt3\" }}' in parents and mimeType = 'application/vnd.google-apps.folder' and (name contains '{{ $today.toFormat(\"yyyyMMdd\") }}' or name contains '{{ $today.toFormat(\"yyyy-MM-dd\") }}' or name contains '{{ $today.toFormat(\"MMdd\") }}' or name contains '{{ $today.toFormat(\"M/d\") }}' or name contains '{{ $today.toFormat(\"M-d\") }}') and trashed = false"
+                            "value": "='{{ ($json.brand || \"\").includes(\"Asia KOL\") ? \"YOUR_FOLDER_ID_HERE\" : ($json.brand || \"\").includes(\"Fans Feed\") ? \"YOUR_FOLDER_ID_HERE\" : \"YOUR_FOLDER_ID_HERE\" }}' in parents and mimeType = 'application/vnd.google-apps.folder' and (name contains '{{ $today.toFormat(\"yyyyMMdd\") }}' or name contains '{{ $today.toFormat(\"yyyy-MM-dd\") }}' or name contains '{{ $today.toFormat(\"MMdd\") }}' or name contains '{{ $today.toFormat(\"M/d\") }}' or name contains '{{ $today.toFormat(\"M-d\") }}') and trashed = false"
                         },
                         {
                             "name": "fields",
@@ -246,8 +246,8 @@
             "id": "ffd3433b-e448-4a9f-a5f5-c7f7184cc580",
             "credentials": {
                 "googleDriveOAuth2Api": {
-                    "id": "sgC7AFVdk5Y5yGOF",
-                    "name": "Google Drive account"
+                    "id": "YOUR_CREDENTIAL_ID_HERE",
+                    "name": "YOUR_CREDENTIAL_NAME_HERE"
                 }
             }
         },
@@ -261,7 +261,7 @@
                     "parameters": [
                         {
                             "name": "q",
-                            "value": "='{{ ($node[\"拆出當周新文章\"].json.brand || \"\").includes(\"Asia KOL\") ? \"1CzGWmLOqeCkkjKnuxqVbDJup-PVFfU7H\" : ($node[\"拆出當周新文章\"].json.brand || \"\").includes(\"Fans Feed\") ? \"1czmLljMgsk1d33fQ_GTzpMl8GBuVsT14\" : \"1tWsHVkYwLBaBAFhAj68K9OntLCCoQAt3\" }}' in parents and name = '已上稿' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
+                            "value": "='{{ ($node[\"拆出當周新文章\"].json.brand || \"\").includes(\"Asia KOL\") ? \"YOUR_FOLDER_ID_HERE\" : ($node[\"拆出當周新文章\"].json.brand || \"\").includes(\"Fans Feed\") ? \"YOUR_FOLDER_ID_HERE\" : \"YOUR_FOLDER_ID_HERE\" }}' in parents and name = '已上稿' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
                         },
                         {
                             "name": "fields",
@@ -289,8 +289,8 @@
             "id": "c3faaeba-888b-415b-8f75-0e50e2d7c935",
             "credentials": {
                 "googleDriveOAuth2Api": {
-                    "id": "sgC7AFVdk5Y5yGOF",
-                    "name": "Google Drive account"
+                    "id": "YOUR_CREDENTIAL_ID_HERE",
+                    "name": "YOUR_CREDENTIAL_NAME_HERE"
                 }
             }
         },
@@ -329,8 +329,8 @@
             "id": "8133b176-26dd-45b3-a11c-e5386f14035a",
             "credentials": {
                 "googleDriveOAuth2Api": {
-                    "id": "sgC7AFVdk5Y5yGOF",
-                    "name": "Google Drive account"
+                    "id": "YOUR_CREDENTIAL_ID_HERE",
+                    "name": "YOUR_CREDENTIAL_NAME_HERE"
                 }
             }
         },
@@ -347,7 +347,7 @@
                 },
                 "folderId": {
                     "__rl": true,
-                    "value": "1W4sp646d72QkkmiUD8HNfpqV70FgJd0S",
+                    "value": "YOUR_FOLDER_ID_HERE",
                     "mode": "id"
                 },
                 "options": {}
@@ -363,8 +363,8 @@
             "executeOnce": true,
             "credentials": {
                 "googleDriveOAuth2Api": {
-                    "id": "sgC7AFVdk5Y5yGOF",
-                    "name": "Google Drive account"
+                    "id": "YOUR_CREDENTIAL_ID_HERE",
+                    "name": "YOUR_CREDENTIAL_NAME_HERE"
                 }
             }
         },
@@ -379,7 +379,7 @@
                 },
                 "folderId": {
                     "__rl": true,
-                    "value": "={{ $('建立本週三主資料夾').first().json.id }}",
+                    "value": "YOUR_FOLDER_ID_HERE",
                     "mode": "id"
                 },
                 "options": {
@@ -396,8 +396,8 @@
             "name": "建立文章子資料夾",
             "credentials": {
                 "googleDriveOAuth2Api": {
-                    "id": "sgC7AFVdk5Y5yGOF",
-                    "name": "Google Drive account"
+                    "id": "YOUR_CREDENTIAL_ID_HERE",
+                    "name": "YOUR_CREDENTIAL_NAME_HERE"
                 }
             }
         }
@@ -513,7 +513,6 @@
     },
     "pinData": {},
     "meta": {
-        "templateCredsSetupCompleted": true,
-        "instanceId": "254ad531709fb502638f39627ec80b627c62b753424d4c08da9b966545cce5bf"
+        "templateCredsSetupCompleted": true
     }
 }
