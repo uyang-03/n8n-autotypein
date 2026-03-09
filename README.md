@@ -6,7 +6,7 @@
 
 | 檔案 | 用途 |
 | :--- | :--- |
-| `autotypein.json` | **n8n 工作流程主體**（直接匯入使用） |
+| `autotypein_v1.6.json` | **n8n 工作流程主體**（直接匯入使用） |
 | `smart_chip_script.js` | **Google Apps Script**（貼入試算表使用） |
 | `docs/` | 說明文件資料夾（操作手冊、結案報告等） |
 
@@ -36,7 +36,7 @@ npx n8n
 
 1. 在 n8n 介面，點選左側 **Workflows** → **Add Workflow**。
 2. 點右上角 **`...`** → **Import from File**。
-3. 選擇本倉庫的 `autotypein.json` 檔案。
+3. 選擇本倉庫的 `autotypein_v1.6.json` 檔案。
 
 ### 步驟 4：重新設定授權憑證 (⚠️ 必要步驟)
 
@@ -72,11 +72,11 @@ npx n8n
 
 | 設定 | 值 |
 | :--- | :--- |
-| Google Sheets ID | `1_srJdmwO8PZtXgbUeZpUWB1T79ubXhXWRZyp2LzvZmo` |
-| Template Sheet ID | `1391772714` |
-| Asia KOL Drive 資料夾 ID | `1CzGWmLOqeCkkjKnuxqVbDJup-PVFfU7H` |
-| Fans Feed Drive 資料夾 ID | `1czmLljMgsk1d33fQ_GTzpMl8GBuVsT14` |
-| i-Buzz 預設資料夾 ID | `1tWsHVkYwLBaBAFhAj68K9OntLCCoQAt3` |
+| Google Sheets ID | `YOUR_SPREADSHEET_ID_HERE` |
+| Template Sheet ID | `YOUR_SHEET_ID_HERE` |
+| Asia KOL Drive 資料夾 ID | `YOUR_FOLDER_ID_HERE` |
+| Fans Feed Drive 資料夾 ID | `YOUR_FOLDER_ID_HERE` |
+| i-Buzz 預設資料夾 ID | `YOUR_FOLDER_ID_HERE` |
 
 ---
 

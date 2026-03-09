@@ -18,8 +18,8 @@
             "type": "n8n-nodes-base.scheduleTrigger",
             "typeVersion": 1.2,
             "position": [
-                -224,
-                32
+                -208,
+                96
             ],
             "id": "059fe8cd-cac5-47b7-b1b0-8e43a6f11be9"
         },
@@ -48,7 +48,7 @@
                         "首頁": "={{ true}}",
                         "電子報": "={{ false}}",
                         "官網": "={{ true}}",
-                        "雲端連結": "={{ $json.files[0].webViewLink }}"
+                        "雲端連結": "={{ $node[\"抓新文章雲端_v2\"].json.files[0]?.webViewLink || '' }}"
                     },
                     "matchingColumns": [],
                     "schema": [
@@ -145,15 +145,14 @@
                     ],
                     "attemptToConvertTypes": false,
                     "convertFieldsToString": false
-                },
-                "options": {}
+                }
             },
             "name": "寫入當月分頁",
             "type": "n8n-nodes-base.googleSheets",
             "typeVersion": 4.5,
             "position": [
-                1152,
-                48
+                1550,
+                150
             ],
             "id": "fc288244-f005-4d6c-8894-4cffd6f49ae7",
             "credentials": {
@@ -161,8 +160,7 @@
                     "id": "YOUR_CREDENTIAL_ID_HERE",
                     "name": "YOUR_CREDENTIAL_NAME_HERE"
                 }
-            },
-            "notes": "寫入當月 Tab，格式：日期|品牌|文章|...|官網連結"
+            }
         },
         {
             "parameters": {
@@ -173,25 +171,23 @@
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.1,
             "position": [
-                16,
-                32
+                32,
+                96
             ],
-            "id": "76a49917-c1e0-49af-8df0-b8997066b9f5",
-            "notes": "目標網站：i-Buzz Viewpoints 頁面"
+            "id": "76a49917-c1e0-49af-8df0-b8997066b9f5"
         },
         {
             "parameters": {
-                "jsCode": "/* \\n * 修正版邏輯：\\n * 原本只抓「本週一」當天的文章。\\n * 改為抓取「本週一 00:00」到「下週一 00:00」之間的所有文章。\\n * 也就是本週一到週日的新文章都會被保留。\\n */\\nconst items = $input.all();\\nif (items.length === 0 || !items[0].json.data) {\\n  return [];\\n}\\nconst html = items[0].json.data;\\n// 1. 計算本週一與下週一的日期界線\\nconst now = new Date();\\nconst currentDay = now.getDay(); // 0(Sun) ~ 6(Sat)\\n// 計算回到本週一的差距\\n// 如果今天是週日(0)，要減6天回到週一；如果今天是週一(1)，減0天；如果今天是週二(2)，減1天...\\nconst diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;\\n// 設定本週一 (00:00:00)\\nconst mondayDate = new Date(now);\\nmondayDate.setDate(now.getDate() + diffToMonday);\\nmondayDate.setHours(0, 0, 0, 0);\\n// 設定下週一 (作為結束界線)\\nconst nextMondayDate = new Date(mondayDate);\\nnextMondayDate.setDate(mondayDate.getDate() + 7);\\nconst articles = [];\\nconst rawItems = html.split('<div class=\"result_item\">');\\n// 2. 定義增強版 Regex (不限屬性順序)\\nconst titleRegex = /<h2>(.*?)<\\/h2>/;\\nconst linkTagRegex = /<a[^>]+class=\"item_cover\"[^>]*>/; \\nconst hrefRefex = /href=\"([^\\\"]+)\"/;\\nconst dateRegex = /class=\"item_date\">(.*?)<\\/div>/;\\nconst categoryRegex = /class=\"item_type\"[^>]*>(.*?)<\\/a>/;\\n// 3. 遍歷所有文章\\nfor (let i = 1; i < rawItems.length; i++) {\\n  const itemHtml = rawItems[i];\\n  \\n  const titleMatch = itemHtml.match(titleRegex);\\n  const dateMatch = itemHtml.match(dateRegex);\\n  const categoryMatch = itemHtml.match(categoryRegex);\\n  \\n  // 解析連結\\n  let link = null;\\n  const linkTagMatch = itemHtml.match(linkTagRegex);\\n  if (linkTagMatch) {\\n     const hrefMatch = linkTagMatch[0].match(hrefRefex);\\n     if (hrefMatch) link = hrefMatch[1];\\n  }\\n  // 確保所有欄位都抓到了\\n  if (titleMatch && link && dateMatch && categoryMatch) {\\n    const title = titleMatch[1].trim();\\n    const dateStr = dateMatch[1].trim(); // 例如 \"2023-10-25\"\\n    const category = categoryMatch[1].trim();\\n    \\n    // 解析文章日期可以比較的時間格式\\n    // 假設 dateStr 格式固定為 YYYY-MM-DD\\n    const parts = dateStr.split('-');\\n    if (parts.length === 3) {\\n        // new Date(y, m-1, d)\\n        const articleDate = new Date(\\n            parseInt(parts[0], 10), \\n            parseInt(parts[1], 10) - 1, \\n            parseInt(parts[2], 10)\\n        );\\n        \\n        // 4. 【關鍵過濾】改為範圍判斷： >= 本週一 且 < 下週一\\n        if (articleDate >= mondayDate && articleDate < nextMondayDate) {\\n            \\n            let brand = '其他';\\n            if (category === '消費者洞察') brand = 'iBuzz(消費者洞察)';\\n            else if (category === '網紅行銷策略') brand = 'Asia KOL';\\n            else if (category === '數據分析解方') brand = '業務提供';\\n            else if (category === '社群粉絲團健檢') brand = 'Fans Feed';\\n            const full_link = link.startsWith('http') ? link : 'https://www.i-buzz.com.tw' + link;\\n            articles.push({\\n              json: {\\n                title: title,\\n                date: dateStr,\\n                brand: brand,\\n                full_link: full_link\\n              }\\n            });\\n        }\\n    }\\n  }\\n}\\nreturn articles;"
+                "jsCode": "/* \n * 修正版邏輯：\n * 原本只抓「本週一」當天的文章。\n * 改為抓取「本週一 00:00」到「下週一 00:00」之間的所有文章。\n * 也就是本週一到週日的新文章都會被保留。\n */\nconst items = $input.all();\nif (items.length === 0 || !items[0].json.data) {\n  return [];\n}\nconst html = items[0].json.data;\n// 1. 計算本週一與下週一的日期界線\nconst now = new Date();\nconst currentDay = now.getDay(); // 0(Sun) ~ 6(Sat)\n// 計算回到本週一的差距\n// 如果今天是週日(0)，要減6天回到週一；如果今天是週一(1)，減0天；如果今天是週二(2)，減1天...\nconst diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;\n// 設定本週一 (00:00:00)\nconst mondayDate = new Date(now);\nmondayDate.setDate(now.getDate() + diffToMonday);\nmondayDate.setHours(0, 0, 0, 0);\n// 設定下週一 (作為結束界線)\nconst nextMondayDate = new Date(mondayDate);\nnextMondayDate.setDate(mondayDate.getDate() + 7);\nconst articles = [];\nconst rawItems = html.split('<div class=\"result_item\">');\n// 2. 定義增強版 Regex (不限屬性順序)\nconst titleRegex = /<h2>(.*?)<\\/h2>/;\nconst linkTagRegex = /<a[^>]+class=\"item_cover\"[^>]*>/; \nconst hrefRefex = /href=\"([^\"]+)\"/;\nconst dateRegex = /class=\"item_date\">(.*?)<\\/div>/;\nconst categoryRegex = /class=\"item_type\"[^>]*>(.*?)<\\/a>/;\n// 3. 遍歷所有文章\nfor (let i = 1; i < rawItems.length; i++) {\n  const itemHtml = rawItems[i];\n  \n  const titleMatch = itemHtml.match(titleRegex);\n  const dateMatch = itemHtml.match(dateRegex);\n  const categoryMatch = itemHtml.match(categoryRegex);\n  \n  // 解析連結\n  let link = null;\n  const linkTagMatch = itemHtml.match(linkTagRegex);\n  if (linkTagMatch) {\n     const hrefMatch = linkTagMatch[0].match(hrefRefex);\n     if (hrefMatch) link = hrefMatch[1];\n  }\n  // 確保所有欄位都抓到了\n  if (titleMatch && link && dateMatch && categoryMatch) {\n    const title = titleMatch[1].trim();\n    const dateStr = dateMatch[1].trim(); // 例如 \"2023-10-25\"\n    const category = categoryMatch[1].trim();\n    \n    // 解析文章日期可以比較的時間格式\n    // 假設 dateStr 格式固定為 YYYY-MM-DD\n    const parts = dateStr.split('-');\n    if (parts.length === 3) {\n        // new Date(y, m-1, d)\n        const articleDate = new Date(\n            parseInt(parts[0], 10), \n            parseInt(parts[1], 10) - 1, \n            parseInt(parts[2], 10)\n        );\n        \n        // 4. 【關鍵過濾】改為範圍判斷： >= 本週一 且 < 下週一\n        if (articleDate >= mondayDate && articleDate < nextMondayDate) {\n            \n            let brand = '其他';\n            if (category === '消費者洞察') brand = 'iBuzz(消費者洞察)';\n            else if (category === '網紅行銷策略') brand = 'Asia KOL';\n            else if (category === '數據分析解方') brand = '業務提供';\n            else if (category === '社群粉絲團健檢') brand = 'Fans Feed';\n            const full_link = link.startsWith('http') ? link : 'https://www.i-buzz.com.tw' + link;\n            articles.push({\n              json: {\n                title: title,\n                date: dateStr,\n                brand: brand,\n                full_link: full_link\n              }\n            });\n        }\n    }\n  }\n}\nreturn articles;"
             },
             "name": "拆出當周新文章",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
             "position": [
-                240,
-                32
+                256,
+                96
             ],
-            "id": "8f4fd1ba-98d6-442e-b2bd-c0651bb9bc51",
-            "notes": "解析 HTML，過濾本週一文章，並進行品牌映射"
+            "id": "8f4fd1ba-98d6-442e-b2bd-c0651bb9bc51"
         },
         {
             "parameters": {
@@ -202,8 +198,8 @@
             "type": "n8n-nodes-base.merge",
             "typeVersion": 3.2,
             "position": [
-                848,
-                48
+                1300,
+                150
             ],
             "id": "6457bdfc-7c94-4cb6-ada9-7db58581649b",
             "name": "Merge"
@@ -240,8 +236,8 @@
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.1,
             "position": [
-                512,
-                208
+                880,
+                250
             ],
             "id": "ffd3433b-e448-4a9f-a5f5-c7f7184cc580",
             "credentials": {
@@ -283,8 +279,8 @@
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.1,
             "position": [
-                736,
-                336
+                1150,
+                400
             ],
             "id": "c3faaeba-888b-415b-8f75-0e50e2d7c935",
             "credentials": {
@@ -323,8 +319,8 @@
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.1,
             "position": [
-                928,
-                336
+                1350,
+                400
             ],
             "id": "8133b176-26dd-45b3-a11c-e5386f14035a",
             "credentials": {
@@ -341,9 +337,7 @@
                 "driveId": {
                     "__rl": true,
                     "value": "My Drive",
-                    "mode": "list",
-                    "cachedResultName": "My Drive",
-                    "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+                    "mode": "list"
                 },
                 "folderId": {
                     "__rl": true,
@@ -355,12 +349,11 @@
             "type": "n8n-nodes-base.googleDrive",
             "typeVersion": 3,
             "position": [
-                560,
-                -144
+                1050,
+                0
             ],
             "id": "5ebf049e-7f3c-4b4f-af12-1088d441afab",
             "name": "建立本週三主資料夾",
-            "executeOnce": true,
             "credentials": {
                 "googleDriveOAuth2Api": {
                     "id": "YOUR_CREDENTIAL_ID_HERE",
@@ -379,18 +372,16 @@
                 },
                 "folderId": {
                     "__rl": true,
-                    "value": "YOUR_FOLDER_ID_HERE",
+                    "value": "={{ $node[\"搜尋主資料夾\"].json.files?.[0]?.id || $node[\"建立本週三主資料夾\"].json.id }}",
                     "mode": "id"
                 },
-                "options": {
-                    "folderColorRgb": ""
-                }
+                "options": {}
             },
             "type": "n8n-nodes-base.googleDrive",
             "typeVersion": 3,
             "position": [
-                1088,
-                -176
+                1550,
+                -50
             ],
             "id": "5b027e97-d830-451c-8376-3d9f37046c3a",
             "name": "建立文章子資料夾",
@@ -400,6 +391,81 @@
                     "name": "YOUR_CREDENTIAL_NAME_HERE"
                 }
             }
+        },
+        {
+            "parameters": {
+                "url": "https://www.googleapis.com/drive/v3/files",
+                "authentication": "predefinedCredentialType",
+                "nodeCredentialType": "googleDriveOAuth2Api",
+                "sendQuery": true,
+                "queryParameters": {
+                    "parameters": [
+                        {
+                            "name": "q",
+                            "value": "={{ \"name = '\" + (() => { const d = new Date(); const day = d.getDay(); const diff = day <= 3 ? 3 - day : 10 - day; const wed = new Date(d); wed.setDate(d.getDate() + diff); const y = wed.getFullYear(); const m = String(wed.getMonth()+1).padStart(2,'0'); const dd = String(wed.getDate()).padStart(2,'0'); return y+m+dd; })() + \"' and 'YOUR_FOLDER_ID_HERE' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false\" }}"
+                        },
+                        {
+                            "name": "fields",
+                            "value": "files(id, name, webViewLink, parents)"
+                        },
+                        {
+                            "name": "supportsAllDrives",
+                            "value": "true"
+                        },
+                        {
+                            "name": "includeItemsFromAllDrives",
+                            "value": "true"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "name": "搜尋主資料夾",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                480,
+                130
+            ],
+            "id": "4dd73e0e-895a-4c33-a2e1-1a035ac88d1b",
+            "credentials": {
+                "googleDriveOAuth2Api": {
+                    "id": "YOUR_CREDENTIAL_ID_HERE",
+                    "name": "YOUR_CREDENTIAL_NAME_HERE"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 3
+                    },
+                    "conditions": [
+                        {
+                            "id": "check-found",
+                            "leftValue": "={{ $node[\"搜尋主資料夾\"].json.files.length }}",
+                            "rightValue": 1,
+                            "operator": {
+                                "type": "number",
+                                "operation": "smaller"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                }
+            },
+            "name": "判斷資料夾是否存在",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.3,
+            "position": [
+                750,
+                130
+            ],
+            "id": "69317711-9be3-4bf7-9baa-bdb854a0c7dd"
         }
     ],
     "connections": {
@@ -412,11 +478,6 @@
                         "index": 0
                     }
                 ]
-            ]
-        },
-        "寫入當月分頁": {
-            "main": [
-                []
             ]
         },
         "抓取觀點文章頁面": {
@@ -434,17 +495,12 @@
             "main": [
                 [
                     {
-                        "node": "Merge",
-                        "type": "main",
-                        "index": 0
-                    },
-                    {
                         "node": "抓新文章雲端_v2",
                         "type": "main",
                         "index": 0
                     },
                     {
-                        "node": "建立本週三主資料夾",
+                        "node": "搜尋主資料夾",
                         "type": "main",
                         "index": 0
                     }
@@ -494,11 +550,6 @@
                 ]
             ]
         },
-        "搬移至已上稿": {
-            "main": [
-                []
-            ]
-        },
         "建立本週三主資料夾": {
             "main": [
                 [
@@ -509,10 +560,35 @@
                     }
                 ]
             ]
+        },
+        "搜尋主資料夾": {
+            "main": [
+                [
+                    {
+                        "node": "判斷資料夾是否存在",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "判斷資料夾是否存在": {
+            "main": [
+                [
+                    {
+                        "node": "建立本週三主資料夾",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Merge",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
         }
-    },
-    "pinData": {},
-    "meta": {
-        "templateCredsSetupCompleted": true
     }
 }
