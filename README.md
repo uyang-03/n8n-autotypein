@@ -34,10 +34,11 @@ npm install -g n8n
 >
 > 1. 重新執行一次（有時只是網路短暫不穩）
 > 2. 清除快取後再試：`npm cache clean --force`，再執行 `npm install -g n8n`
-> 3. 如果仍然失敗，改用以下指令繞過嚴格的連線驗證：
+> 3. 如果仍然失敗（最常見情況），請改用以下**強效安裝指令**，繞過嚴格連線驗證並增加重試耐用度：
 >
 >    ```powershell
->    npm install -g n8n --legacy-peer-deps
+>    npm cache clean --force
+>    npm install -g n8n --legacy-peer-deps --fetch-retry-mintimeout 20000 --fetch-retry-maxtimeout 120000 --fetch-retries 5
 >    ```
 >
 > 4. 若一直無法下載，可能是你的網路環境有 Proxy，請確認或關閉後再試。
