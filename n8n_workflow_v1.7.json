@@ -28,7 +28,7 @@
                 "operation": "append",
                 "documentId": {
                     "__rl": true,
-                    "value": "https://docs.google.com/spreadsheets/d/1_srJdmwO8PZtXgbUeZpUWB1T79ubXhXWRZyp2LzvZmo/edit?gid=1708738764#gid=1708738764",
+                    "value": "YOUR_SPREADSHEET_URL",
                     "mode": "url"
                 },
                 "sheetName": {
@@ -158,7 +158,7 @@
             "id": "1c0e1e0f-670f-47db-bd02-716e76284631",
             "credentials": {
                 "googleSheetsOAuth2Api": {
-                    "id": "QDgBdmnsKlu9ijRH",
+                    "id": "YOUR_CREDENTIAL_ID",
                     "name": "Google Sheets account"
                 }
             }
@@ -215,7 +215,7 @@
                     "parameters": [
                         {
                             "name": "q",
-                            "value": "='{{ ($json.brand || \"\").includes(\"Asia KOL\") ? \"1CzGWmLOqeCkkjKnuxqVbDJup-PVFfU7H\" : ($json.brand || \"\").includes(\"Fans Feed\") ? \"1czmLljMgsk1d33fQ_GTzpMl8GBuVsT14\" : \"1tWsHVkYwLBaBAFhAj68K9OntLCCoQAt3\" }}' in parents and mimeType = 'application/vnd.google-apps.folder' and (name contains '{{ $today.toFormat(\"yyyyMMdd\") }}' or name contains '{{ $today.toFormat(\"yyyy-MM-dd\") }}' or name contains '{{ $today.toFormat(\"MMdd\") }}' or name contains '{{ $today.toFormat(\"M/d\") }}' or name contains '{{ $today.toFormat(\"M-d\") }}') and trashed = false"
+                            "value": "='{{ ($json.brand || \"\").includes(\"Asia KOL\") ? \"YOUR_FOLDER_ID\" : ($json.brand || \"\").includes(\"Fans Feed\") ? \"YOUR_FOLDER_ID\" : \"YOUR_FOLDER_ID\" }}' in parents and mimeType = 'application/vnd.google-apps.folder' and (name contains '{{ $today.toFormat(\"yyyyMMdd\") }}' or name contains '{{ $today.toFormat(\"yyyy-MM-dd\") }}' or name contains '{{ $today.toFormat(\"MMdd\") }}' or name contains '{{ $today.toFormat(\"M/d\") }}' or name contains '{{ $today.toFormat(\"M-d\") }}') and trashed = false"
                         },
                         {
                             "name": "fields",
@@ -243,7 +243,7 @@
             "id": "1997712c-7e29-42e9-bd6f-05412250ea20",
             "credentials": {
                 "googleDriveOAuth2Api": {
-                    "id": "sgC7AFVdk5Y5yGOF",
+                    "id": "YOUR_CREDENTIAL_ID",
                     "name": "Google Drive account"
                 }
             }
@@ -258,7 +258,7 @@
                     "parameters": [
                         {
                             "name": "q",
-                            "value": "='{{ ($node[\"拆出當周新文章\"].json.brand || \"\").includes(\"Asia KOL\") ? \"1CzGWmLOqeCkkjKnuxqVbDJup-PVFfU7H\" : ($node[\"拆出當周新文章\"].json.brand || \"\").includes(\"Fans Feed\") ? \"1czmLljMgsk1d33fQ_GTzpMl8GBuVsT14\" : \"1tWsHVkYwLBaBAFhAj68K9OntLCCoQAt3\" }}' in parents and name = '已上稿' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
+                            "value": "='{{ ($node[\"拆出當周新文章\"].json.brand || \"\").includes(\"Asia KOL\") ? \"YOUR_FOLDER_ID\" : ($node[\"拆出當周新文章\"].json.brand || \"\").includes(\"Fans Feed\") ? \"YOUR_FOLDER_ID\" : \"YOUR_FOLDER_ID\" }}' in parents and name = '已上稿' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
                         },
                         {
                             "name": "fields",
@@ -286,7 +286,7 @@
             "id": "fe8735c3-0ee1-4a6b-bfe5-c0221c6f69a5",
             "credentials": {
                 "googleDriveOAuth2Api": {
-                    "id": "sgC7AFVdk5Y5yGOF",
+                    "id": "YOUR_CREDENTIAL_ID",
                     "name": "Google Drive account"
                 }
             }
@@ -326,7 +326,7 @@
             "id": "f71ed171-9238-4704-93d3-fc603b64de3b",
             "credentials": {
                 "googleDriveOAuth2Api": {
-                    "id": "sgC7AFVdk5Y5yGOF",
+                    "id": "YOUR_CREDENTIAL_ID",
                     "name": "Google Drive account"
                 }
             }
@@ -342,7 +342,7 @@
                 },
                 "folderId": {
                     "__rl": true,
-                    "value": "1W4sp646d72QkkmiUD8HNfpqV70FgJd0S",
+                    "value": "YOUR_PARENT_FOLDER_ID",
                     "mode": "id"
                 },
                 "options": {}
@@ -357,7 +357,7 @@
             "name": "建立本週三主資料夾",
             "credentials": {
                 "googleDriveOAuth2Api": {
-                    "id": "sgC7AFVdk5Y5yGOF",
+                    "id": "YOUR_CREDENTIAL_ID",
                     "name": "Google Drive account"
                 }
             }
@@ -388,7 +388,7 @@
             "name": "建立文章子資料夾",
             "credentials": {
                 "googleDriveOAuth2Api": {
-                    "id": "sgC7AFVdk5Y5yGOF",
+                    "id": "YOUR_CREDENTIAL_ID",
                     "name": "Google Drive account"
                 }
             }
@@ -403,7 +403,7 @@
                     "parameters": [
                         {
                             "name": "q",
-                            "value": "={{ \"name = '\" + (() => { const d = new Date(); const day = d.getDay(); const diff = day <= 3 ? 3 - day : 10 - day; const wed = new Date(d); wed.setDate(d.getDate() + diff); const y = wed.getFullYear(); const m = String(wed.getMonth()+1).padStart(2,'0'); const dd = String(wed.getDate()).padStart(2,'0'); return y+m+dd; })() + \"' and '1W4sp646d72QkkmiUD8HNfpqV70FgJd0S' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false\" }}"
+                            "value": "={{ \"name = '\" + (() => { const d = new Date(); const day = d.getDay(); const diff = day <= 3 ? 3 - day : 10 - day; const wed = new Date(d); wed.setDate(d.getDate() + diff); const y = wed.getFullYear(); const m = String(wed.getMonth()+1).padStart(2,'0'); const dd = String(wed.getDate()).padStart(2,'0'); return y+m+dd; })() + \"' and 'YOUR_PARENT_FOLDER_ID' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false\" }}"
                         },
                         {
                             "name": "supportsAllDrives",
@@ -427,7 +427,7 @@
             "id": "a26f3290-aa4d-475b-bd49-1c59ab2c37c0",
             "credentials": {
                 "googleDriveOAuth2Api": {
-                    "id": "sgC7AFVdk5Y5yGOF",
+                    "id": "YOUR_CREDENTIAL_ID",
                     "name": "Google Drive account"
                 }
             }
